@@ -44,7 +44,7 @@ public class DoubleArraySeq implements Cloneable
    //   2. For an empty sequence (with no elements), we do not care what is 
    //      stored in any of data; for a non-empty sequence, the elements of the
    //      sequence are stored in data[0] through data[manyItems-1], and we
-   //      don’t care what’s in the rest of data.
+   //      donï¿½t care whatï¿½s in the rest of data.
    //   3. If there is a current element, then it lies in data[currentIndex];
    //      if there is no current element, then currentIndex equals manyItems. 
    private double[ ] data;
@@ -64,7 +64,7 @@ public class DoubleArraySeq implements Cloneable
    **/   
    public DoubleArraySeq( )
    {
-      DoubleArraySeq(10);
+      new DoubleArraySeq(10);
    }
      
 
@@ -119,18 +119,18 @@ public class DoubleArraySeq implements Cloneable
    *   Integer.MAX_VALUE will cause the sequence to fail with an
    *   arithmetic overflow.
    **/
-   public void addAfter(int element)
+   public void addAfter(double element)
    {
-      if(manyItems == data.length)
-         ensureCapacity((manyItems + 1)*2);
+      if (this.manyItems == this.data.length)
+         this.ensureCapacity(this.manyItems + 1);
          
-      if(currentIndex == manyItems) {
-         data[manyItems] = element;
-         manyItems++;
+      if (this.currentIndex == this.manyItems) {
+         this.data[this.manyItems] = element;
+         this.manyItems++;
       }
       else {
-         data[currentIndex] = element;
-         manyItems++;
+         this.data[this.currentIndex] = element;
+         this.manyItems++;
       }
    }
 
@@ -154,10 +154,10 @@ public class DoubleArraySeq implements Cloneable
    *   Integer.MAX_VALUE will cause the sequence to fail with an
    *   arithmetic overflow.
    **/
-   public void addBefore(int element)
+   public void addBefore(double element)
    {
-      // ensure the array is large enought
-      this.ensureCapacity(this.manyItems+1);
+      // ensure the array is large enough
+      this.ensureCapacity(this.manyItems + 1);
       
       // if the currentIndex is pointing at nothing,
       // point it back to the beginning of the sequence
@@ -165,10 +165,11 @@ public class DoubleArraySeq implements Cloneable
          this.currentIndex = 0;
       }
       
-      // shift data in sequence right up to currentIndex
-      for (int i=this.manyItems; i>this.currentIndex; i--) {
-         this.data[i] = this[i-1];
-      }
+      // shift data in sequence right, from currentIndex up manyItems-1 (end of sequence)
+      System.arraycopy(this.data, this.currentIndex, this.data, this.currentIndex+1, this.manyItems-this.currentIndex);
+      //for (int i=this.manyItems; i>this.currentIndex; i--) {
+      //   this.data[i] = this.data[i-1];
+      //}
       
       // insert new data into currentIndex
       this.data[this.currentIndex] = element;
@@ -196,10 +197,10 @@ public class DoubleArraySeq implements Cloneable
    **/
    public void addAll(DoubleArraySeq addend)
    {
-      ensureCapacity(manyItems + addend.manyItems);
-      
-      System.arraycopy(data, 0, addend, 0, addend.manyItems);
-      manyItems += addend.manyItems;
+      int prevNumItems = this.manyItems;
+      int newNumItems = prevNumItems + addend.manyItems;
+      this.ensureCapacity(newNumItems);
+      System.arraycopy(addend.data, 0, this.data, prevNumItems, addend.manyItems);
    }   
    
    
@@ -220,10 +221,10 @@ public class DoubleArraySeq implements Cloneable
    **/
    public void advance( )
    {
-      if(currentIndex == data.length)
-         currentIndex = manyItems;
+      if (this.currentIndex == this.data.length)
+         this.currentIndex = manyItems;
       else
-         currentIndex = currentIndex + 1;
+         this.currentIndex = this.currentIndex + 1;
    }
    
    
@@ -282,17 +283,17 @@ public class DoubleArraySeq implements Cloneable
    **/   
    public static DoubleArraySeq concatenation(DoubleArraySeq s1, DoubleArraySeq s2)
    {
-      if (s1 == null) {
+      if (s1 == null)
          throw new NullPointerException("Cannot concatenate null DoubleArraySequence s1");
-      }
-      if (s2 == null) {
+      if (s2 == null)
          throw new NullPointerException("Cannot concatenate null DoubleArraySequence s2");
-      }
       
       int newSize = s1.manyItems + s2.manyItems;
       DoubleArraySeq newSeq = new DoubleArraySeq(newSize);
       System.arraycopy(s1.data, 0, newSeq.data, 0, s1.manyItems);
       System.arraycopy(s2.data, 0, newSeq.data, s1.manyItems, s2.manyItems);
+
+      return newSeq;
    }
 
 
@@ -311,10 +312,69 @@ public class DoubleArraySeq implements Cloneable
    {
       double [] biggerArray;
       
-      if(data.length < minimumCapacity) {
-         biggerArray = new double[minimumCapacity];
-         System.arraycopy(data, 0, biggerArray, 0, manyItems);
-         data = biggerArray;
+      if (this.data.length < minimumCapacity) {
+         int newSize = (minimumCapacity+1)*2;
+         int delta = newSize - minimumCapacity;
+
+         // delta_limit is ...
+         // Double.SIZE = 64 bits / 8 bits/byte = 8 bytes
+         // 4 KiB = 4096 bytes / 8 bytes/double = 512 doubles
+         int delta_limit = 4096/(Double.SIZE/8);
+
+         // let's assume we need to allocate a bigger array to
+         // increase the capacity, but there is not enough
+         // memory to allocate (minimumCapacity+1)*2
+         // => an OutOfMemoryException would be thrown
+
+         // we can catch that OutOfMemoryException the first
+         // time it is thrown using a try/catch block
+
+         // then we can try to allocate some number greater than
+         // minimumCapacity, but less than 2*(minimumCapacity+1)
+
+         // a decent choice for newSize is halfway between:
+         // minimumCapacity and
+         // 2*(minimumCapacity+1)
+         // i.e. at delta/2
+
+         // What if when we try and allocate:
+         // minimumCapacity + delta/2
+         // we get another OutOfMemoryException?
+
+         // we can just wrap the entire try/catch block in
+         // a while(true) block so it will continuously
+         // keep trying to allocate while catching and halving
+         // the delta on every OutOfMemoryException iteration
+
+         // if we manage to eventually successfully increase the size
+         // of the array, simply break the loop and continue
+         // (and maybe throw a party, idk)
+
+         // Eventually, at a particular delta limit
+         // (we're using 4 KiB = 4096 bytes = 512 doubles)
+         // it's probably meaningless to continue
+
+         // at that point we should despair and throw the freakin'
+         // exception already
+
+         // like WELP I TRIED MY BEST LIFE SUCKS O WELL
+         // I'M JUST GOING TO GO STARE AT THE CORNER NOW
+         // I LIKE THE COBWEBS OVER THERE
+         // THEY MAKE ME FEEL WANTED
+
+         while (true) {
+            try {
+               biggerArray = new double[newSize];
+               break;
+            } catch (OutOfMemoryError e) {
+               if (delta <= delta_limit)
+                  throw e;
+               newSize = minimumCapacity + (delta/2);
+               delta = newSize - minimumCapacity;
+            }
+         }
+         System.arraycopy(data, 0, biggerArray, 0, this.manyItems);
+         this.data = biggerArray;
       }  
    }
 
@@ -346,7 +406,9 @@ public class DoubleArraySeq implements Cloneable
    **/
    public double getCurrent( )
    {
-      return this.currentIndex;
+      if ( ! this.isCurrent() )
+           throw new IllegalStateException("No current element, getCurrent() method cannot be called")
+      return this.data[this.currentIndex];
    }
 
 
@@ -360,12 +422,9 @@ public class DoubleArraySeq implements Cloneable
    **/
    public boolean isCurrent( )
    {
-      boolean answer = true;
-      
-      if(currentIndex == manyItems)
-         answer = false;
-      
-      return answer;
+      if (this.currentIndex == this.manyItems)
+         return false;
+      return true;
    }
               
    /**
@@ -384,15 +443,12 @@ public class DoubleArraySeq implements Cloneable
    **/
    public void removeCurrent( )
    {
-      if(currentIndex == manyItems)
-         currentIndex = manyItems;
-      else{
-         if(currentIndex+1 == manyItems)
-            manyItems -= 1;
-         else{
-            data[currentIndex] = data[currentIndex + 1];
-         } 
-      }   
+      if ( ! this.isCurrent() )
+         throw new IllegalStateException("No current element, removeCurrent() method cannot be called")
+      else if (this.currentIndex+1 == this.manyItems)
+         this.manyItems--;
+      else
+         this.data[this.currentIndex] = this.data[this.currentIndex + 1];
    }
                  
    
@@ -450,7 +506,8 @@ public class DoubleArraySeq implements Cloneable
    * @param element
    *   the new element that is being added
    * @postcondition
-   *   A new copy of the element has been added to the front of this sequence.
+   *   The element has been added to the front of this sequence.
+   *   The currentIndex has been returned to what it was before the method call.
    * @exception OutOfMemoryError
    *   Indicates insufficient memory for increasing the sequence's capacity.
    * @note
@@ -459,8 +516,10 @@ public class DoubleArraySeq implements Cloneable
    *   arithmetic overflow.
    **/
    public void addFront(double element) {
+      int prevIndex = this.currentIndex;
       this.currentIndex = 0;
       this.addBefore(element);
+      this.currentIndex = prevIndex;
    }
    
    /**
@@ -468,10 +527,10 @@ public class DoubleArraySeq implements Cloneable
    * If the new element would take this sequence beyond its current capacity,
    * then the capacity is increased before adding the new element.
    * @param element
-   *   the new element that is being added
+   *   The new element that is being added.
    * @postcondition
-   *   A new copy of the element has been added after the last element in the sequence.
-   *   new current element of this sequence. 
+   *   The element has been added after the last element in the sequence.
+   *   The currentIndex is returned to what it was before the method call.
    * @exception OutOfMemoryError
    *   Indicates insufficient memory for increasing the sequence's capacity.
    * @note
@@ -481,8 +540,10 @@ public class DoubleArraySeq implements Cloneable
    **/
 
    public void addEnd(double element) {
-      this.currentIndex = this.manyItems-1;
+      int prevIndex = this.currentIndex;
+      this.setCurrentLast();
       this.addAfter(element);
+      this.currentIndex = prevIndex;
    }
    
    
@@ -495,7 +556,7 @@ public class DoubleArraySeq implements Cloneable
    **/
    public void removeFront() {
       if (this.manyItems > 0)
-         System.arraycopy(this.data, 1, this.data, 0, this.manyItems-1);
+         System.arraycopy(this.data, 1, this.data, 0, --this.manyItems-1);
    }
 
    /**
@@ -506,7 +567,7 @@ public class DoubleArraySeq implements Cloneable
    *   Indicates if the array is empty
    **/
    public void setCurrentLast( ) {
-      currentIndex = manyItems - 1;
+      this.currentIndex = this.manyItems - 1;
    }   
 
 }
