@@ -389,6 +389,7 @@ public class DoubleArraySeq implements Cloneable
    **/
    public int getCapacity( )
    {
+      
       return this.data.length;
    }
 
@@ -568,7 +569,42 @@ public class DoubleArraySeq implements Cloneable
    **/
    public void setCurrentLast( ) {
       this.currentIndex = this.manyItems - 1;
-   }   
+   }
 
+
+   public double getElement(int n) {
+      if (n > this.manyItems)
+         throw new IllegalStateException("Not that many elements in sequence: "+ n);
+      if (this.manyItems == 0)
+         throw new IllegalStateException("Empty sequence");
+      this.currentIndex = n-1;
+      return this.data[this.currentIndex];
+   }
+
+   public void setCurrent(int n) {
+      if (n > this.manyItems)
+         throw new IllegalStateException("Not that many elements in sequence: "+ n);
+      if (this.manyItems == 0)
+         throw new IllegalStateException("Empty sequence");
+      this.currentIndex = n-1;
+   }
+
+   public boolean equals(Object o) {
+      if (o instanceof DoubleArraySeq) {
+         o = (DoubleArraySeq) o;
+         for (int i=0; i<o.data.length; i++) {
+            if (o[i] != this.data[i])
+               return false;
+         }
+      }
+      return false;
+   }
+
+   public String toString() {
+      if (this.manyItems == 0)
+         throw new IllegalStateException("Empty sequence");
+      for (int i=0; i<this.manyItems; i++) {
+         System.out.print("%i ", this.data[i]);
+      }
+   }
 }
-           
