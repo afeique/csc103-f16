@@ -135,12 +135,12 @@ public class DoubleArraySeq implements Cloneable
          
       if (this.currentIndex == this.manyItems) {
          this.data[this.manyItems] = element;
-         this.manyItems++;
       }
       else {
          this.data[this.currentIndex] = element;
-         this.manyItems++;
       }
+
+      this.manyItems++;
    }
 
 
@@ -173,15 +173,15 @@ public class DoubleArraySeq implements Cloneable
       if (this.currentIndex == this.manyItems) {
          this.currentIndex = 0;
       }
-      
-      // shift data in sequence right, from currentIndex up manyItems-1 (end of sequence)
-      System.arraycopy(this.data, this.currentIndex, this.data, this.currentIndex+1, this.manyItems-this.currentIndex);
-      //for (int i=this.manyItems; i>this.currentIndex; i--) {
-      //   this.data[i] = this.data[i-1];
-      //}
-      
+
+      if (this.manyItems > 0) {
+         // shift data in sequence right, from currentIndex up manyItems-1 (end of sequence)
+         System.arraycopy(this.data, this.currentIndex, this.data, this.currentIndex+1, this.manyItems - this.currentIndex);
+      }
+
       // insert new data into currentIndex
       this.data[this.currentIndex] = element;
+      this.manyItems++;
    }
    
    
@@ -602,11 +602,11 @@ public class DoubleArraySeq implements Cloneable
    *   Indicates if the array is empty or if there are not N elements in the array.
    **/
    public void setCurrent(int n) {
-      if (n > this.manyItems)
+      if (n >= this.manyItems)
          throw new IllegalStateException("Not that many elements in sequence: "+ n);
       if (this.manyItems == 0)
          throw new IllegalStateException("Empty sequence");
-      this.currentIndex = n-1;
+      this.currentIndex = n;
    }
 
    /**
@@ -636,12 +636,13 @@ public class DoubleArraySeq implements Cloneable
    *    string containing the concatenated output of the sequence
    **/
    public String toString() {
-      String s = "";
+      String s = "[ ";
       if (this.manyItems == 0)
          return s;
       for (int i=0; i<this.manyItems; i++) {
-         s += String.format("%.2f ", this.data[i]);
+         s += String.format("  %.2f", this.data[i]);
       }
+      s += " ]";
       return s;
    }
 }

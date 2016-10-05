@@ -30,8 +30,8 @@ public class SequenceTest {
 		System.out.println("12. Display a number at a certain index in the ACTIVE sequence");
 		System.out.println("13. Display the last element in the ACTIVE sequence");
 		System.out.println("14. Trim extra memory from both A and B");
-		System.out.println("15. Create a clone of the ACTIVE sequence and display");
-		System.out.println("16. Create a new sequence by concatenating B to A and display");
+		System.out.println("15. Create a clone of the ACTIVE sequence");
+		System.out.println("16. Create a new sequence by concatenating B to A");
 		System.out.println("17. Quit");
 		System.out.println("-----------------------------------------------------------------------------\n");
 	}
@@ -43,7 +43,8 @@ public class SequenceTest {
 		Scanner scanner = new Scanner(System.in);
 
 		int input;
-		double secondIn;
+		double element;
+		int index;
 
 		dance:
 		while (true) {
@@ -58,17 +59,19 @@ public class SequenceTest {
 			String out = "";
 			switch (input) {
 				case 1:
-					out = "\tA: [ " + s[0].toString() +" ]\n\tB: [ " + s[1].toString() +" ]";
+					System.out.println("\tA: " + s[0].toString() +"\n\tB: " + s[1].toString());
 					break;
 				case 2:
-					out = "\tA: "+ s[0].getCapacity() +"\n\tB: "+ s[1].getCapacity();
+					System.out.println("\tA: "+ s[0].getCapacity() +"\n\tB: "+ s[1].getCapacity());
 					break;
 				case 3:
-					out = "\tA and B are not equal";
 					if (s[0].equals(s[1]))
-						out = "\tA and be are equal";
+						System.out.println("\tA and be are equal");
+					else
+						System.out.println("\tA and B are not equal");
+
 					if (s[0].getCapacity() == 0 && s[1].getCapacity() == 0)
-						out += "\n\t(A and B are both empty)";
+						System.out.println("\n\t(A and B are both empty)");
 					break;
 				case 4:
 					if (SequenceTest.activeSeq == 0)
@@ -80,15 +83,31 @@ public class SequenceTest {
 					break;
 				case 5:
 					System.out.println("\nEnter the number to add to the front of sequence "+ SequenceTest.activeAlpha +": ");
-					secondIn = scanner.nextDouble();
-					s[SequenceTest.activeSeq].addFront(secondIn);
-					System.out.printf("Added %.2f to the front of sequence %s", secondIn, SequenceTest.activeAlpha);
+					element = scanner.nextDouble();
+					s[SequenceTest.activeSeq].addFront(element);
+					System.out.printf("Added %.2f to the front of sequence %s", element, SequenceTest.activeAlpha);
 					break;
 				case 6:
 				case 7:
 				case 8:
+					System.out.println("\nEnter the number to add to the end of sequence "+ SequenceTest.activeAlpha +": ");
+					element = scanner.nextDouble();
+					s[SequenceTest.activeSeq].addEnd(element);
+					System.out.printf("Added %.2f to the end of sequence %s", element, SequenceTest.activeAlpha);
+					break;
 				case 9:
+					out = "\tA: " + s[0].toString() +"\n\tB: " + s[1].toString();
+					s[0].addAll(s[1]);
+					out += "\n\tA + B = "+ s[0].toString();
+					out += "\n\n\tAdded sequence B to end of A";
+					System.out.println(out);
+					break;
 				case 10:
+					System.out.println("\nEnter the index number of the element to delete (0, 1, 2,...): ");
+					index = scanner.nextInt();
+					s[SequenceTest.activeSeq].setCurrent(index);
+					System.out.println("Element at index %d: %.2f", index, s[SequenceTest.activeSeq].getElement());
+
 				case 11:
 				case 12:
 				case 13:
@@ -101,7 +120,6 @@ public class SequenceTest {
 					throw new IllegalArgumentException("Whatchu tryin' to pull. That ain't no choice. Make my day and choose again, punk.");
 			}
 
-			System.out.println(out);
 		}
 	}
 }
