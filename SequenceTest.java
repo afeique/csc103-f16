@@ -39,6 +39,8 @@ public class SequenceTest {
 	public static void main(String [] arg)
 	{
 		DoubleArraySeq[] s = {new DoubleArraySeq(), new DoubleArraySeq()};
+		s[0] = new DoubleArraySeq(5);
+		s[1] = new DoubleArraySeq(5);
 		SequenceTest.activeSeq = 0;
 		Scanner scanner = new Scanner(System.in);
 
@@ -66,11 +68,11 @@ public class SequenceTest {
 					break;
 				case 3:
 					if (s[0].equals(s[1]))
-						System.out.println("\tA and be are equal");
+						System.out.println("\tA and B are equal");
 					else
 						System.out.println("\tA and B are not equal");
 
-					if (s[0].getCapacity() == 0 && s[1].getCapacity() == 0)
+					if (s[0].size() == 0 && s[1].size() == 0)
 						System.out.println("\n\t(A and B are both empty)");
 					break;
 				case 4:
@@ -88,7 +90,9 @@ public class SequenceTest {
 					System.out.printf("Added %.2f to the front of sequence %s", element, SequenceTest.activeAlpha);
 					break;
 				case 6:
+					break;
 				case 7:
+					break;
 				case 8:
 					System.out.println("\nEnter the number to add to the end of sequence "+ SequenceTest.activeAlpha +": ");
 					element = scanner.nextDouble();
@@ -105,16 +109,24 @@ public class SequenceTest {
 				case 10:
 					System.out.println("\nEnter the index number of the element to delete (0, 1, 2,...): ");
 					index = scanner.nextInt();
-					s[SequenceTest.activeSeq].setCurrent(index);
-					System.out.println("Element at index %d: %.2f", index, s[SequenceTest.activeSeq].getElement());
-
+					try {
+						s[SequenceTest.activeSeq].setCurrent(index);
+						s[SequenceTest.activeSeq].removeCurrent();
+					} catch (IllegalStateException e) {
+						System.out.println(e.getMessage());
+					}
+               		break;
 				case 11:
 				case 12:
 				case 13:
+					s[SequenceTest.activeSeq].end();
+					System.out.println("Last element in sequence %s: %.2f", SequenceTest.activeAlpha, s[SequenceTest.activeSeq].getCurrent());
+					break;
 				case 14:
 				case 15:
 				case 16:
 				case 17:
+					System.out.println("Bye!");
 					break dance;
 				default:
 					throw new IllegalArgumentException("Whatchu tryin' to pull. That ain't no choice. Make my day and choose again, punk.");
