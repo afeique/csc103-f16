@@ -3,6 +3,8 @@
 // This is an assignment for students to complete after reading Chapter 3 of
 // "Data Structures and Other Objects Using Java" by Michael Main.
 
+// Created by Sydney McDaniel, Yusen Jiang, Afeique Sheikh
+
 
 import java.lang.*;
 
@@ -487,6 +489,11 @@ public class DoubleArraySeq implements Cloneable
    {
       this.currentIndex = 0;
    }
+
+   public void end()
+   {
+   	  this.currentIndex = this.manyItems-1;
+   }
    
    
    /**
@@ -602,8 +609,10 @@ public class DoubleArraySeq implements Cloneable
    *   Indicates if the array is empty or if there are not N elements in the array.
    **/
    public void setCurrent(int n) {
-      if (n >= this.manyItems)
-         throw new IllegalStateException("Not that many elements in sequence: "+ n);
+      if (n >= this.manyItems) {
+         throw new IllegalStateException("Fewer than "+ ++n +" elements in sequence");
+
+      }
       if (this.manyItems == 0)
          throw new IllegalStateException("Empty sequence");
       this.currentIndex = n;
@@ -638,7 +647,7 @@ public class DoubleArraySeq implements Cloneable
    public String toString() {
       String s = "[ ";
       if (this.manyItems == 0)
-         return s;
+      	return "[]";
       for (int i=0; i<this.manyItems; i++) {
          s += String.format("  %.2f", this.data[i]);
       }
