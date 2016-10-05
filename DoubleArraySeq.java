@@ -4,6 +4,8 @@
 // "Data Structures and Other Objects Using Java" by Michael Main.
 
 
+import java.lang.*;
+
 /******************************************************************************
 * This class is a homework assignment;
 * A DoubleArraySeq is a collection of double numbers.
@@ -64,7 +66,15 @@ public class DoubleArraySeq implements Cloneable
    **/   
    public DoubleArraySeq( )
    {
-      new DoubleArraySeq(10);
+      int initialCapacity = 10;
+
+      try {
+         this.data = new double[initialCapacity];
+      } catch (OutOfMemoryError e) {
+         throw new OutOfMemoryError("Not enough memory to allocate new double["+ initialCapacity +"]");
+      }
+      
+      this.manyItems = this.currentIndex = 0;
    }
      
 
@@ -86,9 +96,8 @@ public class DoubleArraySeq implements Cloneable
    **/   
    public DoubleArraySeq(int initialCapacity)
    {
-      if (initialCapacity < 0) {
-         throw new IllegalArgumentExcepion("initialCapacity of DoubleArraySeq must be nonnegative");
-      }
+      if (initialCapacity < 0) 
+         throw new IllegalArgumentException("initialCapacity of DoubleArraySeq must be nonnegative");
       
       try {
          this.data = new double[initialCapacity];
@@ -98,7 +107,7 @@ public class DoubleArraySeq implements Cloneable
       
       this.manyItems = this.currentIndex = 0;
    }
-        
+   
  
    /**
    * Add a new element to this sequence, after the current element. 
@@ -318,8 +327,8 @@ public class DoubleArraySeq implements Cloneable
 
          // delta_limit is ...
          // Double.SIZE = 64 bits / 8 bits/byte = 8 bytes
-         // 4 KiB = 4096 bytes / 8 bytes/double = 512 doubles
-         int delta_limit = 4096/(Double.SIZE/8);
+         // 4 KiB = 2048 bytes / 8 bytes/double = 256 doubles
+         int delta_limit = 2048/(Double.SIZE/8);
 
          // let's assume we need to allocate a bigger array to
          // increase the capacity, but there is not enough
@@ -351,7 +360,7 @@ public class DoubleArraySeq implements Cloneable
          // (and maybe throw a party, idk)
 
          // Eventually, at a particular delta limit
-         // (we're using 4 KiB = 4096 bytes = 512 doubles)
+         // (we're using 2 KiB = 256 doubles)
          // it's probably meaningless to continue
 
          // at that point we should despair and throw the freakin'
@@ -389,7 +398,8 @@ public class DoubleArraySeq implements Cloneable
    **/
    public int getCapacity( )
    {
-      
+      if (this.data == null)
+         return 0;
       return this.data.length;
    }
 
@@ -408,7 +418,7 @@ public class DoubleArraySeq implements Cloneable
    public double getCurrent( )
    {
       if ( ! this.isCurrent() )
-           throw new IllegalStateException("No current element, getCurrent() method cannot be called")
+           throw new IllegalStateException("No current element, getCurrent() method cannot be called");
       return this.data[this.currentIndex];
    }
 
@@ -445,7 +455,7 @@ public class DoubleArraySeq implements Cloneable
    public void removeCurrent( )
    {
       if ( ! this.isCurrent() )
-         throw new IllegalStateException("No current element, removeCurrent() method cannot be called")
+         throw new IllegalStateException("No current element, removeCurrent() method cannot be called");
       else if (this.currentIndex+1 == this.manyItems)
          this.manyItems--;
       else
@@ -492,10 +502,10 @@ public class DoubleArraySeq implements Cloneable
    {
       double[ ] trimmedArray;
       
-      if (data.length != manyItems)
+      if (data.length != this.manyItems)
       {
-         trimmedArray = new double[manyItems];
-         System.arraycopy(data, 0, trimmedArray, 0, manyItems);
+         trimmedArray = new double[this.manyItems];
+         System.arraycopy(data, 0, trimmedArray, 0, this.manyItems);
          data = trimmedArray;
       }
    }
@@ -572,15 +582,25 @@ public class DoubleArraySeq implements Cloneable
    }
 
 
+   /**
+   * Sets the cursor to the Nth element of the sequence and returns that element.
+   * @postcondition
+   *   The current element has been set to the Nth element of the sequence.
+   * @exception IllegalStateException
+   *   Indicates if the array is empty or if there are not N elements in the array.
+   **/
    public double getElement(int n) {
-      if (n > this.manyItems)
-         throw new IllegalStateException("Not that many elements in sequence: "+ n);
-      if (this.manyItems == 0)
-         throw new IllegalStateException("Empty sequence");
-      this.currentIndex = n-1;
-      return this.data[this.currentIndex];
+      this.setCurrent(n);
+      return this.getCurrent();
    }
 
+   /**
+   * Sets the cursor to the Nth element of the sequence
+   * @postcondition
+   *   The current element has been set to the Nth element of the sequence.
+   * @exception IllegalStateException
+   *   Indicates if the array is empty or if there are not N elements in the array.
+   **/
    public void setCurrent(int n) {
       if (n > this.manyItems)
          throw new IllegalStateException("Not that many elements in sequence: "+ n);
@@ -589,22 +609,39 @@ public class DoubleArraySeq implements Cloneable
       this.currentIndex = n-1;
    }
 
+   /**
+   * Sets the cursor to the Nth element of the sequence
+   * @return
+   *    true or false depending on whether the sequences are equal
+   **/
    public boolean equals(Object o) {
       if (o instanceof DoubleArraySeq) {
-         o = (DoubleArraySeq) o;
-         for (int i=0; i<o.data.length; i++) {
-            if (o[i] != this.data[i])
+         DoubleArraySeq c = (DoubleArraySeq) o;
+         if (c.data == null) {
+            if (this.data == null)
+               return true;
+            return false;
+         }
+         for (int i=0; i<c.data.length; i++) {
+            if (c.data[i] != this.data[i])
                return false;
          }
       }
-      return false;
+      return true;
    }
 
+   /**
+   * Sets the cursor to the Nth element of the sequence
+   * @return
+   *    string containing the concatenated output of the sequence
+   **/
    public String toString() {
+      String s = "";
       if (this.manyItems == 0)
-         throw new IllegalStateException("Empty sequence");
+         return s;
       for (int i=0; i<this.manyItems; i++) {
-         System.out.print("%i ", this.data[i]);
+         s += String.format("%.2f ", this.data[i]);
       }
+      return s;
    }
 }
