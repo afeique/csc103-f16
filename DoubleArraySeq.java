@@ -201,8 +201,15 @@ public class DoubleArraySeq implements Cloneable
    public void addAll(DoubleArraySeq addend)
    {
       int prevNumItems = this.manyItems;
-      int newNumItems = prevNumItems + addend.manyItems;
-      this.ensureCapacity(newNumItems);
+      this.manyItems = prevNumItems + addend.manyItems;
+      this.ensureCapacity(this.manyItems);
+
+      // manually copy element-by-element ourselves
+      //for (int i=0; i<addend.manyItems; i++) {
+      //   this.addEnd(addend.data[i]);
+      //}
+
+      // use arraycopy to copy addend's items to the end of this object's items
       System.arraycopy(addend.data, 0, this.data, prevNumItems, addend.manyItems);
    }   
    
@@ -295,7 +302,7 @@ public class DoubleArraySeq implements Cloneable
       DoubleArraySeq newSeq = new DoubleArraySeq(newSize);
       System.arraycopy(s1.data, 0, newSeq.data, 0, s1.manyItems);
       System.arraycopy(s2.data, 0, newSeq.data, s1.manyItems, s2.manyItems);
-
+      newSeq.manyItems = newSize;
       return newSeq;
    }
 
