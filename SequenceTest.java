@@ -21,8 +21,8 @@ public class SequenceTest {
 		System.out.println("3. Report if A and B are equal");
 		System.out.println("4. Toggle the ACTIVE sequence ("+ SequenceTest.activeAlpha +" is curently ACTIVE)" );
 		System.out.println("5. Add a number to the front of the ACTIVE sequence");
-		System.out.println("6. Add a number before a specified number in the ACTIVE sequence");
-		System.out.println("7. Add a number after a specified number in the ACTIVE sequence");
+		System.out.println("6. Add a number before a specified index in the ACTIVE sequence");
+		System.out.println("7. Add a number after a specified index in the ACTIVE sequence");
 		System.out.println("8. Add a number to the end of the ACTIVE sequence");
 		System.out.println("9. Add sequence B to end of A");
 		System.out.println("10. Delete a number at a certain index from the ACTIVE sequence");
@@ -47,6 +47,7 @@ public class SequenceTest {
 		int input;
 		double element;
 		int index;
+		DoubleArraySeq curSeq;
 
 		dance:
 		while (true) {
@@ -55,13 +56,13 @@ public class SequenceTest {
 			System.out.println("ACTIVE SEQUENCE: "+ SequenceTest.activeAlpha);
 			
 			//choose menu 
-			System.out.println("Enter the menu selection: ");
+			System.out.printf("Enter the menu selection: ");
 			input = scanner.nextInt();
 
 			String out = "";
 			switch (input) {
 				case 1:
-					System.out.println("\tA: " + s[0].toString() +"\n\tB: " + s[1].toString());
+					System.out.println("\tA: "+ s[0].toString() +"\n\tB: "+ s[1].toString());
 					break;
 				case 2:
 					System.out.println("\tA: "+ s[0].getCapacity() +"\n\tB: "+ s[1].getCapacity());
@@ -73,7 +74,7 @@ public class SequenceTest {
 						System.out.println("\tA and B are not equal");
 
 					if (s[0].size() == 0 && s[1].size() == 0)
-						System.out.println("\n\t(A and B are both empty)");
+						System.out.println("\t(A and B are both empty)");
 					break;
 				case 4:
 					if (SequenceTest.activeSeq == 0)
@@ -84,20 +85,48 @@ public class SequenceTest {
 					System.out.println("\tActive sequence switched to: "+ SequenceTest.activeAlpha);
 					break;
 				case 5:
-					System.out.println("\nEnter the number to add to the front of sequence "+ SequenceTest.activeAlpha +": ");
+					System.out.printf("\tEnter the number to add to the front of sequence %s: ", SequenceTest.activeAlpha);
 					element = scanner.nextDouble();
 					s[SequenceTest.activeSeq].addFront(element);
-					System.out.printf("Added %.2f to the front of sequence %s", element, SequenceTest.activeAlpha);
+					System.out.printf("\tAdded %.2f to the front of sequence %s", element, SequenceTest.activeAlpha);
 					break;
 				case 6:
+					System.out.printf("\tEnter the index to add BEFORE in sequence %s: ", SequenceTest.activeAlpha);
+					index = scanner.nextInt();
+					System.out.printf("\tEnter the element to add BEFORE index %d in sequence %s: ", index, SequenceTest.activeAlpha);
+					element = scanner.nextDouble();
+					curSeq = s[SequenceTest.activeSeq];
+					System.out.printf("\tOriginal sequence %s: %s\n", SequenceTest.activeAlpha, curSeq.toString());
+					try {
+						curSeq.setCurrent(index);
+						curSeq.addBefore(element);
+						System.out.printf("\tNew sequence %s: %s\n", SequenceTest.activeAlpha, curSeq.toString());
+					} catch (IllegalStateException e) {
+						System.out.println("\t"+ e.getMessage());
+					}
 					break;
 				case 7:
+					System.out.printf("\tEnter the index to add AFTER in sequence %s: ", SequenceTest.activeAlpha);
+					index = scanner.nextInt();
+					System.out.printf("\tEnter the element to add AFTER index %d in sequence %s: ", index, SequenceTest.activeAlpha);
+					element = scanner.nextDouble();
+					curSeq = s[SequenceTest.activeSeq];
+					System.out.printf("\tOriginal sequence %s BEFORE: %s\n", SequenceTest.activeAlpha, curSeq.toString());
+					try {
+						curSeq.setCurrent(index);
+						curSeq.addAfter(element);
+						System.out.printf("\tNew sequence %s AFTER: %s\n", SequenceTest.activeAlpha, curSeq.toString());
+					} catch (IllegalStateException e) {
+						System.out.println("\t"+ e.getMessage());
+					}
 					break;
 				case 8:
-					System.out.println("\nEnter the number to add to the end of sequence "+ SequenceTest.activeAlpha +": ");
+					System.out.printf("\tEnter the number to add to the end of sequence %s: ", SequenceTest.activeAlpha);
 					element = scanner.nextDouble();
-					s[SequenceTest.activeSeq].addEnd(element);
-					System.out.printf("Added %.2f to the end of sequence %s", element, SequenceTest.activeAlpha);
+					curSeq = s[SequenceTest.activeSeq];
+					curSeq.addEnd(element);
+					System.out.printf("\tAdded %.2f to the end of sequence %s", element, SequenceTest.activeAlpha);
+					System.out.printf("\t%s: %s", SequenceTest.activeAlpha, curSeq.toString());
 					break;
 				case 9:
 					out = "\tA: " + s[0].toString() +"\n\tB: " + s[1].toString();
@@ -107,24 +136,66 @@ public class SequenceTest {
 					System.out.println(out);
 					break;
 				case 10:
-					System.out.println("\nEnter the index number of the element to delete (0, 1, 2,...): ");
+					System.out.printf("\tEnter the index number of the element to delete from sequence "+ SequenceTest.activeAlpha +": ");
 					index = scanner.nextInt();
+					curSeq = s[SequenceTest.activeSeq];
 					try {
-						s[SequenceTest.activeSeq].setCurrent(index);
-						s[SequenceTest.activeSeq].removeCurrent();
+						curSeq.setCurrent(index);
+						element = curSeq.getCurrent();
+						curSeq.removeCurrent();
+						System.out.println("\tRemoved "+ element +" from sequence "+ SequenceTest.activeAlpha);
 					} catch (IllegalStateException e) {
-						System.out.println(e.getMessage());
+						System.out.println("\t"+ e.getMessage());
 					}
                		break;
 				case 11:
+					try {
+						s[SequenceTest.activeSeq].removeFront();
+					} catch (IllegalStateException e) {
+						System.out.println("\t"+ e.getMessage());
+					}
+                    break;
+
 				case 12:
+					System.out.printf("\tEnter the index number of the element to find from sequence "+ SequenceTest.activeAlpha +": ");
+                    index = scanner.nextInt();
+                     
+                    System.out.println(index);
+                     
+                    try {
+                        s[SequenceTest.activeSeq].getElement(index);
+                    } catch (IllegalStateException e) {
+                        System.out.println("\t"+ e.getMessage());
+                    }
+                     
+                    break;
+
 				case 13:
-					s[SequenceTest.activeSeq].end();
-					System.out.println("Last element in sequence %s: %.2f", SequenceTest.activeAlpha, s[SequenceTest.activeSeq].getCurrent());
+					try {
+						s[SequenceTest.activeSeq].setCurrentLast();
+						System.out.printf("\tLast element in sequence %s: %.2f", SequenceTest.activeAlpha, s[SequenceTest.activeSeq].getCurrent());
+					} catch (IllegalStateException e) {
+						System.out.println("\t"+ e.getMessage());
+					}
+					
 					break;
 				case 14:
+					System.out.println("\tCapacities BEFORE trimming:");
+					System.out.println("\tA: "+ s[0].getCapacity() +"\n\tB: "+ s[1].getCapacity());
+					s[0].trimToSize();
+                    s[1].trimToSize();
+                    System.out.println("\n\tCapacities AFTER trimming:");
+                   	System.out.println("\tA: "+ s[0].getCapacity() +"\n\tB: "+ s[1].getCapacity());
+                    break;
 				case 15:
+					DoubleArraySeq copy = s[SequenceTest.activeSeq].clone();
+                    System.out.printf("\tSequence %s clone: %s", SequenceTest.activeAlpha, copy.toString());
+                    break;
 				case 16:
+					System.out.println("\tA: "+ s[0].toString() +"\n\tB: "+ s[1].toString());
+					DoubleArraySeq concat = DoubleArraySeq.concatenation(s[0], s[1]);
+					System.out.println("\tA concenated with B: "+ concat.toString());
+					break;
 				case 17:
 					System.out.println("Bye!");
 					break dance;

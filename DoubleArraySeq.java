@@ -132,16 +132,8 @@ public class DoubleArraySeq implements Cloneable
    **/
    public void addAfter(double element)
    {
-      if (this.manyItems == this.data.length)
-         this.ensureCapacity(this.manyItems + 1);
-         
-      if (this.currentIndex == this.manyItems) {
-         this.data[this.manyItems] = element;
-      }
-      else {
-         this.data[this.currentIndex] = element;
-      }
-
+      this.ensureCapacity(this.manyItems + 1);
+      this.data[++this.currentIndex] = element;
       this.manyItems++;
    }
 
@@ -489,11 +481,6 @@ public class DoubleArraySeq implements Cloneable
    {
       this.currentIndex = 0;
    }
-
-   public void end()
-   {
-   	  this.currentIndex = this.manyItems-1;
-   }
    
    
    /**
@@ -571,10 +558,14 @@ public class DoubleArraySeq implements Cloneable
    *   There is at least one item in the sequence.
    * @postcondition
    *   The first element was removed and the other elements were shifted left.
+   * @exception IllegalStateException
+   *   No elements in sequence.
    **/
    public void removeFront() {
       if (this.manyItems > 0)
          System.arraycopy(this.data, 1, this.data, 0, --this.manyItems-1);
+      else
+         throw new IllegalStateException("Sequence is empty");
    }
 
    /**
@@ -585,7 +576,10 @@ public class DoubleArraySeq implements Cloneable
    *   Indicates if the array is empty
    **/
    public void setCurrentLast( ) {
-      this.currentIndex = this.manyItems - 1;
+      if (this.manyItems > 0)
+         this.currentIndex = this.manyItems - 1;
+      else
+         throw new IllegalStateException("Sequence is empty");
    }
 
 
@@ -611,7 +605,6 @@ public class DoubleArraySeq implements Cloneable
    public void setCurrent(int n) {
       if (n >= this.manyItems) {
          throw new IllegalStateException("Fewer than "+ ++n +" elements in sequence");
-
       }
       if (this.manyItems == 0)
          throw new IllegalStateException("Empty sequence");
@@ -642,16 +635,16 @@ public class DoubleArraySeq implements Cloneable
    /**
    * Sets the cursor to the Nth element of the sequence
    * @return
-   *    string containing the concatenated output of the sequence
+   *    string containing the output of the sequence
    **/
    public String toString() {
-      String s = "[ ";
+      String s = "[";
       if (this.manyItems == 0)
       	return "[]";
       for (int i=0; i<this.manyItems; i++) {
          s += String.format("  %.2f", this.data[i]);
       }
-      s += " ]";
+      s += "  ]";
       return s;
    }
 }
