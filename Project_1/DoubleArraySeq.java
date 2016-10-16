@@ -636,7 +636,7 @@ public class DoubleArraySeq implements Cloneable
                return false;
          }
       }
-      return true;
+      return false;
    }
 
    /**
