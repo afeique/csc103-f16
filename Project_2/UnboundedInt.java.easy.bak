@@ -1,7 +1,13 @@
 
-public class UnboundedInt {
+import java.math.BigInteger;
+
+public class UnboundedInt implements Cloneable {
     int sign, numNodes;
     IntNode head, tail, cursor;
+
+    public UnboundedInt(BigInteger b) {
+        this(b.toString());
+    }
 
     public UnboundedInt(String input) {
         // sanitize input String to avoid NumberFormatException
@@ -76,81 +82,8 @@ public class UnboundedInt {
             // set prevNode to the newNode, then continue to next iteration
             prevNode = newNode;
         }
-
-        // set the head
+        
         this.head = prevNode;
-    }
-
-    /**
-     * A re-implementation of the Integer.parseInt() static method.
-     *
-     * @param input
-     *   The string to convert to an integer
-     * @precondition
-     *   String input contains one or more numeric digits
-     */ 
-    public static int parseInt(String input) {
-        // sanitize input String
-
-        // assume sign is positive
-        int sign = 1;
-
-        // check if negative sign at start of input, set sign accordingly
-        if (input.charAt(0) == '-')
-            sign = -1;
-
-        // use regex to remove all non-digits from input
-        // (no scientific notation, kthxbai)
-        input = input.replaceAll("[^\\d]+", "");
-
-        int len = input.length();
-
-        // if the string is empty, then no digits were in the input
-        if (len == 0)
-            throw new NumberFormatException("String must contain one or more digits");
-
-        char digit;
-        int asciiCode;
-        int pwr = 0;
-        int num = 0;
-
-        // loop through input string right-to-left (least significant digit to most significant)
-        for (int i=len-1; i>-1; i--) {
-            // get char digit at current position
-            digit = input.charAt(i);
-            // cast digit char as int to get ascii code
-            asciiCode = (int)digit;
-
-            // convert asciiCode to actual int digit, multiply digit by 10^(pwr), add to num
-            num += UnboundedInt.asciiDigitLookup(asciiCode) * Math.pow(10, pwr++);
-        }
-
-        return sign*num;
-    }
-
-    /**
-     * Lookup and return the numeric digit an asciiCode represents as an int.
-     * Throw an IllegalArgumentException if the asciiCode input does not represent a numeric digit.
-     *
-     * @param asciiCode
-     *   Primitive int representing the ASCII code to look up.
-     * @precondition
-     *   Input asciiCode is the code for a numeric digit [0-9], i.e. within range [48-57]
-     * @return
-     *   The digit the asciiCode input represents as an integer.
-     * @exception IllegalArgumentException
-     *   Thrown if the asciiCode input does not represent a numeric digit (code outside of range [48-57])
-     */
-    public static int asciiDigitLookup(int asciiCode) {
-        // ascii code 48 = digit 0; ascii code 57 = digit 9
-        // by subtracting the asciiCode input from 48, we get the exact int digit it represents
-        int digit = asciiCode - 48;
-
-        // make sure the digit is within bounds
-        if (digit < 0 || digit > 9)
-            throw new IllegalArgumentException("Ascii code "+ asciiCode +" does not correspond to a digit [0-9]");
-
-        return digit;
     }
 
     /**
@@ -165,9 +98,10 @@ public class UnboundedInt {
         IntNode curNode = this.head;
         String out = String.format("%d", curNode.getData());
         curNode = this.head.getLink();
-        while (curNode) {
+        while (curNode != null) {
             // use String.format() to left-pad with zeros so length is always 3 digits
             out = out + String.format("%03d", curNode.getData());
+            curNode = curNode.getLink();
         }
 
         if (sign == -1)
@@ -194,14 +128,46 @@ public class UnboundedInt {
         return this.cursor.getData();
     }
 
+    public UnboundedInt clone() {
+        return new UnboundedInt(this.toString());
+    }
+
+    public static BigInteger toBigInteger(UnboundedInt u) {
+        return new BigInteger(u.toString());
+    }
+
+    public static UnboundedInt fromBigInteger(BigInteger b) {
+        return new UnboundedInt(b.toString());
+    }
+
+    public BigInteger toBigInteger() {
+        return new BigInteger(this.toString());
+    }
+
+    public UnboundedInt add(UnboundedInt a) {
+        BigInteger result = this.toBigInteger().add(a.toBigInteger());
+        return new UnboundedInt(result);
+    }
+
+    public UnboundedInt multiply(UnboundedInt m) {
+        BigInteger result = this.toBigInteger().multiply(m.toBigInteger());
+        return new UnboundedInt(result);
+    }
+
     public boolean equals(Object o) {
         if (o instanceof UnboundedInt) {
             UnboundedInt u = (UnboundedInt)o;
-            if (String.equals(this.toString(), u.toString()))
+            if (this.toBigInteger().equals(u.toBigInteger()))
+                return true;
+            return false;
+        } else if (o instanceof BigInteger) {
+            BigInteger b = (BigInteger)o;
+            if (this.toBigInteger().equals(b))
                 return true;
             return false;
         }
         return false;
     }
+
 
 }
