@@ -2,25 +2,34 @@
 import java.math.BigInteger;
 
 public class UnboundedInt implements Cloneable {
-    private int sign, numNodes;
+    private int numNodes;
     private IntNode head, tail, cursor;
 
+    private UnboundedInt() {
+        // start with no linked list
+        this.head = null;
+        this.tail = null;
+        this.numNodes = 0;
+        // we ain't got nothin' to point to
+        this.cursor = null;
+    }
+
+    /**
+     * Overloaded constructor that takes a java.math.BigInteger and uses that
+     * to set the value of the UnboundedInt.
+     *
+     * @param BigInteger
+     *   The BigInteger with the value that this UnboundedInt should be initialized to.
+     */
     public UnboundedInt(BigInteger b) {
         this(b.toString());
     }
 
     public UnboundedInt(String input) {
+        // initialize instance vars
+        this();
+        
         // sanitize input String to avoid NumberFormatException
-
-        // assume sign is positive
-        this.sign = 1;
-
-        // start with no linked list
-        this.head = null;
-
-        // check if negative sign at start of input, set sign accordingly
-        if (input.charAt(0) == '-')
-            this.sign = -1;
 
         // use regex to remove all non-digits from input
         // (no scientific notation, kthxbai)
@@ -106,7 +115,7 @@ public class UnboundedInt implements Cloneable {
             curNode = curNode.getLink();
         }
 
-        if (sign == -1)
+        if (this.tail.getData() < 0)
             out = "-" + out;
 
         return out;
