@@ -2,12 +2,10 @@
 import java.math.BigInteger;
 
 public class UnboundedInt {
-    private int sign, numNodes;
+    private int numNodes;
     private IntNode head, tail, cursor;
 
     private UnboundedInt() {
-        // assume sign is positive
-        this.sign = 1;
         // start with no linked list
         this.head = null;
         this.tail = null;
@@ -34,8 +32,9 @@ public class UnboundedInt {
         // sanitize input String to avoid NumberFormatException
 
         // check if negative sign at start of input, set sign accordingly
+        int sign = 1;
         if (input.charAt(0) == '-')
-            this.sign = -1;
+            sign = -1;
 
         // use regex to remove all non-digits from input
         input = input.replaceAll("[^\\d]+", "");
@@ -84,7 +83,7 @@ public class UnboundedInt {
             // parse the integer value from the string
             nodeInt = Integer.parseInt(nodeStr);
             // finally, create a node using the parsed integer value
-            newNode = new IntNode(nodeInt, null);
+            newNode = new IntNode(sign*nodeInt, null);
             if (prevNode == null) {
                 // if this is the first node we're creating (prevNode null)
                 // then maintain a reference to this newNode as the head
@@ -110,33 +109,33 @@ public class UnboundedInt {
      *   String containing number encapsulated by this UnboundedInt
      */
     public String toString() {
-        IntNode curNode = this.head;
         String out, nodeStr;
         out = "";
 
         // the nodes are stored from least significant to most significant digits
         // thus, we have to prepend each successive node to the running String out
         // the tail node represents the most significant digits: it should NOT be rendered with left-padded zeros
-        while (curNode != null) {
-            if (curNode == this.tail) {
+        this.start();
+        while (this.cursor != null) {
+            if (this.cursor == this.tail) {
                 // if the node is the tail (most significant digits),
                 // render it without any left-padded zeros
                 //System.out.format("\ntoStr: on tail node: %d\n", curNode.getData());
-                nodeStr = String.format("%d", curNode.getData());
+                nodeStr = String.format("%d", Math.abs(this.cursor.getData()));
             } else {
                 // if the node is not the tail (most significant digits),
                 // use String.format() to left-pad with zeros so length is always 3 digits
                 //System.out.format("\ntoStr: on normal node: %03d\n", curNode.getData());
-                nodeStr = String.format("%03d", curNode.getData());
+                nodeStr = String.format("%03d", Math.abs(this.cursor.getData()));
             }
 
             out = nodeStr + out;
             //System.out.format("\nout: %s\n", out);
-            curNode = curNode.getLink();
+            this.advance();
         }
 
-        // prepend with a negative sign if necessary
-        if (this.sign < 0)
+        // prepend with a negative sign if tail (most significant digits/node) is negative
+        if (this.tail.getData() < 0)
             out = "-" + out;
 
         return out;
@@ -315,18 +314,23 @@ public class UnboundedInt {
                 val[1] = 0;
             }
 
-            sumNode = sum.cursor.getData() + (this.sign*val[0]) + (u.sign*val[1]);
+            sumNode = sum.cursor.getData() + val[0] + val[1];
             overflowNode = sum.cursor.getLink().getData();
 
             // use integer division to determine if there is overflow
-            overflow = sumNode/1000;
+            overflow = Math.abs(sumNode/1000);
 
             //System.out.format("sum[%d]: %d\noverflow: %d\n", i, sum[i], overflow);
 
             // handle the overflow and carry over
             if (overflow > 0) {
-                sumNode -= 1000;
-                overflowNode += 1;
+                if (sumNode < 0) {
+                    sumNode += 1000;
+                    overflowNode -= 1;
+                } else {
+                    sumNode -= 1000;
+                    overflowNode += 1;
+                }
             }
 
             // commit our local variables to the sum IntNodes
@@ -357,27 +361,6 @@ public class UnboundedInt {
         // trim off unused (zero) nodes at the end
         sum.trim();
 
-        // deal with negative nodes, carry-right, and negative signage
-        sum.start();
-        while (sum.cursor != sum.tail) {
-            sumNode = sum.cursor.getData();
-            overflowNode = sum.cursor.getLink().getData();
-            if (sumNode < 0) {
-                overflowNode -= 1;
-                sumNode += 1000;
-            }
-            sum.cursor.setData(Math.abs(sumNode));
-            sum.cursor.getLink().setData(overflowNode);
-            sum.advance();
-        }
-        sumNode = sum.tail.getData();
-        if (sumNode < 0) {
-            sum.tail.setData(Math.abs(sumNode));
-            sum.sign = -1;
-        }
-
-        sum.trim();
-
         /*
         sumStr = UnboundedInt.resultArrayToString(sum);
         return new UnboundedInt(sumStr);
@@ -398,100 +381,6 @@ public class UnboundedInt {
             this.numNodes -= 1;
         }
     }
-
-
-    /*
-    public UnboundedInt add2(UnboundedInt u) {
-        int[] val = {0, 0};
-        // addition between an N digit/node number and an M digit/node number
-        // results in a sum of at most max(N,M)+1 digits/nodes
-        // ex: 99+999 = 1098 (2 digits, 3 digits => max(2,3)+1 = 4 digits)
-        int sumNumNodes = Math.max(this.numNodes, u.numNodes)+1;
-        int[] sum = new int[sumNumNodes];
-        int overflow;
-        String sumStr;
-
-        // If the addend has a different number of nodes than this, at some point one of the linked lists
-        // will reach its end while the other will have more nodes to traverse.
-
-        // Thus, one of the linked lists will have its cursor=null, and will start throwing exceptions
-        // as we try to continue advancing and trying to retrieve the cursor node's value.
-        
-        // However, because these Exceptions are expected, we'll isolate them using try/catch blocks
-        // and ignore them, continuing operation as expected.
-
-        //System.out.format("this.numNodes: %d\nu.numNodes: %d\nsumNumNodes: %d\n", this.numNodes, u.numNodes, sumNumNodes);
-
-        // start each linked list at its respective head
-        this.start(); u.start();
-        for (int i=0; i<sumNumNodes-1; i++) {
-            // get the node values, handling expected Exceptions
-            try {
-                val[0] = this.getNodeValue();
-            } catch (IllegalStateException e) {
-                val[0] = 0;
-            }
-            try {
-                val[1] = u.getNodeValue();
-            } catch (IllegalStateException e) {
-                val[1] = 0;
-            }
-
-            sum[i] += (this.sign*val[0]) + (u.sign*val[1]);
-            // use integer division to determine if there is overflow
-            overflow = sum[i]/1000;
-            //System.out.format("sum[%d]: %d\noverflow: %d\n", i, sum[i], overflow);
-
-            // handle the overflow and carry over
-            if (overflow > 0) {
-                sum[i] -= 1000;
-                sum[i+1] += 1;
-            }
-            //System.out.format("sum[%d]: %d\nsum[%d+1]: %d\n", i, sum[i], i, sum[i+1]);
-
-            // advance the cursors, handling expected Exceptions
-            try {
-                this.advance();
-            } catch (IllegalStateException e) {
-                // do nothing
-            }
-            try {
-                u.advance();
-            } catch (IllegalStateException e) {
-                // do nothing
-            }
-        }
-
-        // loop over the result array and create a 
-        sumStr = UnboundedInt.resultArrayToString(sum);
-        return new UnboundedInt(sumStr);
-    }
-    */
-
-    /**
-     * Loop over a particular result array (an int[] with each entry a particular value for a node)
-     * and create a String from it.
-     *
-     * @param result
-     *   int[] containing the results to convert to a String.
-     * @return String
-     *   String output of the results.
-     */
-    /*
-    private static String resultArrayToString(int[] result) {
-        String out = "";
-        for (int i=0; i<result.length; i++) {
-            // if we're on the last entry of the array and it == 0,
-            // break, otherwise we'll end up left-padding the output with an unnecessary 0
-            if (i == result.length-1 && result[i] == 0)
-                break;
-            out = Integer.toString(result[i]) + out;
-        }
-        if (result[0] < 0)
-            out = "-" + out;
-        return out;
-    }
-    */
 
     public UnboundedInt multiply(UnboundedInt u) {
         // multiplication of an N digit/node number by an M digit/node number
