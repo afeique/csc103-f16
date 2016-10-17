@@ -26,7 +26,7 @@ public class UnboundedInt {
     }
 
     public UnboundedInt(String input) {
-        // initialize values
+        // initialize instance vars
         this();
 
         // sanitize input String to avoid NumberFormatException
