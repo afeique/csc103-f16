@@ -28,11 +28,15 @@ public class UnboundedInt implements Cloneable {
     public UnboundedInt(String input) {
         // initialize instance vars
         this();
-        
-        // sanitize input String to avoid NumberFormatException
 
+        // check if negative sign at start of input, set sign accordingly
+        int sign = 1;
+        if (input.charAt(0) == '-')
+            sign = -1;
+
+
+        // sanitize input String to avoid NumberFormatException
         // use regex to remove all non-digits from input
-        // (no scientific notation, kthxbai)
         input = input.replaceAll("[^\\d]+", "");
 
         int len = input.length();
@@ -79,7 +83,7 @@ public class UnboundedInt implements Cloneable {
             // parse the integer value from the string
             nodeInt = Integer.parseInt(nodeStr);
             // finally, create a node using the parsed integer value
-            newNode = new IntNode(nodeInt, null);
+            newNode = new IntNode(sign*nodeInt, null);
             if (prevNode == null) {
                 // if this is the first node we're creating (prevNode null)
                 // then maintain a reference to this newNode as the tail
@@ -107,11 +111,11 @@ public class UnboundedInt implements Cloneable {
     public String toString() {
         IntNode curNode = this.head;
         // head node should be rendered without left-padded zeros
-        String out = String.format("%d", curNode.getData());
+        String out = String.format("%d", Math.abs(curNode.getData()));
         curNode = this.head.getLink();
         while (curNode != null) {
             // left-pad with zeros so length is always 3 digits
-            out = out + String.format("%03d", curNode.getData());
+            out = out + String.format("%03d", Math.abs(curNode.getData()));
             curNode = curNode.getLink();
         }
 

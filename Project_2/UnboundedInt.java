@@ -29,13 +29,12 @@ public class UnboundedInt {
         // initialize instance vars
         this();
 
-        // sanitize input String to avoid NumberFormatException
-
         // check if negative sign at start of input, set sign accordingly
         int sign = 1;
         if (input.charAt(0) == '-')
             sign = -1;
 
+        // sanitize input String to avoid NumberFormatException
         // use regex to remove all non-digits from input
         input = input.replaceAll("[^\\d]+", "");
 
