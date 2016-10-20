@@ -1,12 +1,110 @@
 
 import java.math.BigInteger;
+import java.util.concurrent.ThreadLocalRandom;
 
 public class UnboundedInt {
     private int numNodes;
     private IntNode head, tail, cursor;
+    
+    public static void main(String[] args) {
+		
+        int numDigits, n;
+		String[] val = {"1","1"};
+        boolean r;
+
+        System.out.println("\nRunning random tests... Ctrl-C to stop.\n\n");
+
+        r = true;
+        while (r) {
+            for (int j=0; j<2; j++) {
+                numDigits = ThreadLocalRandom.current().nextInt(1,31);
+                val[j] = "";
+                for (int i=0; i<numDigits; i++) {
+                    n = ThreadLocalRandom.current().nextInt(1,10);
+                    val[j] += Integer.toString(n);
+                }
+
+                n = ThreadLocalRandom.current().nextInt(0,2);
+                if (n == 0)
+                    val[j] = "-" + val[j];
+            }
+
+            System.out.format("%s, %s\n", val[0], val[1]);
+            r = testIter(val);
+        }
+			
+	}
+
+    private static boolean testIter(String[] val) {
+        boolean r;
+        UnboundedInt u1, u2, usum, uprod, clone;
+        BigInteger b1, b2, bsum, bprod;
+
+        u1 = new UnboundedInt(val[0]);
+        //System.out.format("Created UnboundedInt u1 = %s\n", u1.toString());
+        u2 = new UnboundedInt(val[1]);
+        //System.out.format("Created UnboundedInt u2 = %s\n", u2.toString());
+        usum = u1.add(u2);
+        //System.out.format("u1+u2 = %s\n", usum.toString());
+        uprod = u1.multiply(u2);
+        //System.out.format("u1*u2 = %s\n", uprod.toString());
+
+        b1 = new BigInteger(val[0]);
+        //System.out.format("Created BigInteger b1 = %s\n", b1.toString());
+        b2 = new BigInteger(val[1]);
+        //System.out.format("Created BigInteger b2 = %s\n", b2.toString());
+        bsum = b1.add(b2);
+        //System.out.format("b1+b2 = %s\n", bsum.toString());
+        bprod = b1.multiply(b2);
+        //System.out.format("b1*b2 = %s\n", bprod.toString());
+
+        //System.out.println("");
+
+        r = u1.equals(b1);
+        if (!r) {
+            System.out.format("error: expected u1==b1, but %s != %s\n", u1, b1);
+            return false;
+        }
+        r = u2.equals(b2);
+        if (!r) {
+            System.out.format("error: expected u2==b2, but %s != %s\n", u2, b2);
+            return false;
+        }
+
+
+        r = usum.equals(bsum);
+        if (!r) {
+            System.out.format("error: expected u1+u2 == b1+b2, but %s != %s\n", usum, bsum);
+            return false;
+        }
+        r = uprod.equals(bprod);
+        if (!r) {
+            System.out.format("error: expected u1*u2 == b1*b2, but %s != %s\n", uprod, bprod);
+            return false;
+        }
+
+        clone = u1.clone();
+        r = u1.equals(clone);
+        if (!r) {
+            System.out.format("error: expected u1.clone() == u1, but %s != %s\n", clone, u1);
+            return false;
+        }
+        clone = u2.clone();
+        r = u2.equals(clone);
+        if (!r) {
+            System.out.format("error: expected u2.clone() == u2, but %s != %s\n", clone, u2);
+            return false;
+        }
+
+
+        System.out.format("OK\n\n\n", val[0], val[1]);
+        return true;
+
+    }
+
 
     private UnboundedInt() {
-        // start with no linked list
+        // start with no linked list`
         this.head = null;
         this.tail = null;
         this.numNodes = 0;
@@ -277,8 +375,7 @@ public class UnboundedInt {
         // ex: 99+999 = 1098 (2 digits, 3 digits => max(2,3)+1 = 4 digits)
         int sumNumNodes = Math.max(this.numNodes, u.numNodes)+1;
         UnboundedInt sum = new UnboundedInt();
-        int overflow, sumNode, overflowNode;
-        String sumStr;
+        int overflow, sumNode, overflowNode, complement;
 
         // If the addend has a different number of nodes than this, at some point one of the linked lists
         // will reach its end while the other will have more nodes to traverse.
@@ -300,36 +397,51 @@ public class UnboundedInt {
 
         // start each linked list at its respective head
         this.start(); u.start();
+
         for (int i=0; i<sumNumNodes-1; i++) {
+
             // get the node values, handling expected Exceptions
             try {
                 val[0] = this.cursor.getData();
-            } catch (IllegalStateException e) {
+            } catch (NullPointerException e) {
                 val[0] = 0;
             }
             try {
                 val[1] = u.cursor.getData();
-            } catch (IllegalStateException e) {
+            } catch (NullPointerException e) {
                 val[1] = 0;
             }
 
+            // if the two signs are opposing, add using complements
             sumNode = sum.cursor.getData() + val[0] + val[1];
             overflowNode = sum.cursor.getLink().getData();
+            
 
-            // use integer division to determine if there is overflow
-            overflow = Math.abs(sumNode/1000);
-
-            //System.out.format("sum[%d]: %d\noverflow: %d\n", i, sum[i], overflow);
+            // max possible overflow from addition is 1000:
+            // 999+999 = 1998
 
             // handle the overflow and carry over
-            if (overflow > 0) {
-                if (sumNode < 0) {
-                    sumNode += 1000;
-                    overflowNode -= 1;
-                } else {
-                    sumNode -= 1000;
-                    overflowNode += 1;
-                }
+
+            //System.out.format("\n\n\n");
+            //System.out.format("Original node value: %d\n", sum.cursor.getData());
+            //System.out.format("%d + %d = %d\n", val[0], val[1], val[0]+val[1]);
+            //System.out.format("New node value: %d\n", sumNode);
+
+            //System.out.format("Overflow node value before potential overflow: %d\n", overflowNode);
+            if (sumNode >= 1000) {
+                sumNode -= 1000;
+                overflowNode += 1;
+                //System.out.format(">> OVERFLOW OCCURRED\n");
+                //System.out.format("Node value after overflow: %d\n", sumNode);
+                //System.out.format("Overflow node value after overflow: %d\n", overflowNode);
+            } else if (sumNode <= -1000) {
+                sumNode += 1000;
+                overflowNode -= 1;
+                //System.out.format(">> OVERFLOW OCCURRED\n");
+                //System.out.format("Node value after overflow: %d\n", sumNode);
+                //System.out.format("Overflow node value after overflow: %d\n", overflowNode);
+            } else {
+                //System.out.format("No overflow occurred\n");
             }
 
             // commit our local variables to the sum IntNodes
@@ -341,8 +453,6 @@ public class UnboundedInt {
             sum.tail = new IntNode(0, null);
             sum.cursor.setLink(sum.tail);
             sum.numNodes += 1;
-
-            //System.out.format("sum[%d]: %d\nsum[%d+1]: %d\n", i, sum[i], i, sum[i+1]);
 
             // advance the linked list cursors, handling expected Exceptions
             try {
@@ -360,10 +470,39 @@ public class UnboundedInt {
         // trim off unused (zero) nodes at the end
         sum.trim();
 
-        /*
-        sumStr = UnboundedInt.resultArrayToString(sum);
-        return new UnboundedInt(sumStr);
-        */
+        //
+        // !!! IMPORTANT !!!
+        // Using the sign of the sum (sign of the most significant/tail node), \
+        // make sure all the nodes have the same sign. 
+        // If the nodes do not have the same sign, perform borrow-carries to ensure they do.
+        // 
+        // If this is not performed, then adding positives to negatives fails ~50% of the time.
+        int sign = 1;
+        if (sum.tail.getData() < 0)
+            sign = -1;
+
+        sum.start();
+        while (sum.cursor != sum.tail) {
+            sumNode = sum.cursor.getData();
+            overflowNode = sum.cursor.getLink().getData();
+
+            if (sign < 0 && sum.cursor.getData() > 0) {
+                sumNode -= 1000;
+                overflowNode += 1;
+            } else if (sign > 0 && sum.cursor.getData() < 0) {
+                sumNode += 1000;
+                overflowNode -= 1;
+            }
+
+            sum.cursor.setData(sumNode);
+            sum.cursor.getLink().setData(overflowNode);
+            sum.advance();
+        }
+
+        // perform another trim() in case we had to borrow from the most significant node and it was = -1.
+        // Such a borrow would result in a most significant node (tail) = 0.
+        sum.trim();
+
         return sum;
     }
 
@@ -371,26 +510,95 @@ public class UnboundedInt {
         while (this.tail.getData() == 0) {
             if (this.numNodes == 1)
                 break;
-            this.start();
-            while (this.cursor.getLink() != this.tail) {
-                this.advance();
-            }
+            this.seek(--this.numNodes-1);
             this.cursor.setLink(null);
             this.tail = this.cursor;
-            this.numNodes -= 1;
+        }
+    }
+
+    public void seek(int n) {
+        this.start();
+        if (n >= this.numNodes || n < 0)
+            throw new IllegalArgumentException("Node n must be within bounds: [0, "+ this.numNodes +"]");
+        //System.out.println("Seeking to: "+ n);
+        for (int i=0; i<n; i++) {
+            //System.out.println("Current node "+ i +" = "+ this.cursor.getData());
+            this.advance();
         }
     }
 
     public UnboundedInt multiply(UnboundedInt u) {
+        int[] val = {0, 0};
         // multiplication of an N digit/node number by an M digit/node number
         // results in a product of at most N+M digits
         // example: 99*99 = 9801 (2+2 = 4 digits)
-        int prodNumNodes = this.numNodes + u.numNodes;
-        int[] prod = new int[prodNumNodes];
+        UnboundedInt prod = new UnboundedInt();
+        int overflow, prodNode, overflowNode;
+        
+        // create the head node
+        prod.numNodes = this.numNodes + u.numNodes;
+        prod.head = new IntNode(0, null);
+        prod.cursor = prod.head;
 
+        // preallocate prod linked list
+        for (int i=1; i<prod.numNodes; i++) {
+            prod.cursor.setLink(new IntNode(0, null));
+            prod.advance();
+        }
 
-        System.out.format("this.numNodes: %d\nu.numNodes: %d\nprodNumNodes: %d\n", this.numNodes, u.numNodes, prodNumNodes);
-        return new UnboundedInt("0");
+        // the last element we preallocate is the tail
+        prod.tail = prod.cursor;
+
+        // position the two UnboundedInts we are multiplying
+        this.start();
+        //System.out.println("\n\n");
+        for (int i=0; i<this.numNodes; i++) {
+            val[0] = this.cursor.getData();
+            prod.seek(i);
+            u.start();
+            for (int j=0; j<u.numNodes; j++) {
+                val[1] = u.cursor.getData();
+                
+                prodNode = prod.cursor.getData() + (val[0] * val[1]);
+                //System.out.format("Original Node %d value: %d\n", i+j, prod.cursor.getData());
+                //System.out.format("%d x %d = %d\n", val[0], val[1], (val[0] * val[1]));
+                //System.out.format("New node %d value: %d\n", i+j, prodNode + prod.cursor.getData());
+                overflowNode = prod.cursor.getLink().getData();
+                
+                // use integer division to determine if there is overflow
+                overflow = Math.abs(prodNode/1000);
+
+                // set the data if there 
+                if (overflow > 0) {
+                    //System.out.format("Overflow from node %d: %d\n", i+j, overflow);
+                    // max possible overflow from multiplication is 998,000
+                    // handle the overflow and carry over
+                    if (prodNode < 0) {
+                        prodNode += overflow*1000;
+                        overflowNode -= overflow;
+                    } else if (prodNode > 0) {
+                        prodNode -= overflow*1000;
+                        overflowNode += overflow;
+                    }
+                   
+                }
+                
+                prod.cursor.setData(prodNode);
+                prod.cursor.getLink().setData(overflowNode);
+                
+                //System.out.println("\n\n");
+                prod.advance();
+                u.advance();
+            }
+            this.advance();
+        }
+
+        // trim off unused (zero) nodes at the end
+        prod.trim();
+        
+        //System.out.format("Num nodes in product: %d\n", prod.numNodes);
+
+        return prod;
     }
 
 }
