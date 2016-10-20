@@ -29,7 +29,7 @@ public class UnboundedInt {
                     val[j] = "-" + val[j];
             }
 
-            System.out.format("%s, %s\n", val[0], val[1]);
+            //System.out.format("%s, %s\n", val[0], val[1]);
             r = testIter(val);
         }
 			
@@ -49,9 +49,9 @@ public class UnboundedInt {
         uprod = u1.multiply(u2);
         //System.out.format("u1*u2 = %s\n", uprod.toString());
 
-        b1 = new BigInteger(val[0]);
+        b1 = new BigInteger(u1.toString());
         //System.out.format("Created BigInteger b1 = %s\n", b1.toString());
-        b2 = new BigInteger(val[1]);
+        b2 = new BigInteger(u2.toString());
         //System.out.format("Created BigInteger b2 = %s\n", b2.toString());
         bsum = b1.add(b2);
         //System.out.format("b1+b2 = %s\n", bsum.toString());
@@ -97,7 +97,7 @@ public class UnboundedInt {
         }
 
 
-        System.out.format("OK\n\n\n", val[0], val[1]);
+        //System.out.format("OK\n\n\n");
         return true;
 
     }
