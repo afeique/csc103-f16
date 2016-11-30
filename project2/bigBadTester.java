@@ -45,13 +45,13 @@ public class bigBadTester {
             switch (intChoice) {
                 case 1 :
                     if (a != null && b != null) {
-                        System.out.format("A = %s\n\n\nB = %s\n\n", a.toString(), b.toString());   
+                        System.out.format("A = %s\n\nB = %s\n\n", a.toString(), b.toString());   
                     } else {
                         String s = "No numbers to display. Want to count with Count von Count instead?\n\n"+
 "              oooOOOooo\n"+
 "           oOOOOOOOOOOOOOo\n"+
 "         oOO\"           \"OO\n"+
-"    ____oOO  ====   ====  OOo____       Ah, ah, ah!\n"+
+"    ____oOO  ====   ====  OOo____    Ah, ah, ah!\n"+
 "    \\   OO'      ! !.---. 'OO   /\n"+
 "     \\  OO   <0> ! !!<0>!  OO  /\n"+
 "      \\ Oo       ! !'---'  oO /\n"+
@@ -79,7 +79,7 @@ public class bigBadTester {
                     }
                     
                     
-                    System.out.println("\n");
+                    System.out.println("");
 
                     System.out.print("Input B: ");
                     input = scanner.next();
@@ -113,9 +113,9 @@ public class bigBadTester {
                  
               case 6 :
                   if (a != null && b != null) {
-                      System.out.format("Original A: %s\nCloned A: %s\n", a, a.clone());
-                      System.out.println("\n");
-                      System.out.format("Original B: %s\nCloned B: %s\n", b, b.clone());
+                      System.out.format("Original A:\n%s\n\nCloned A:\n%s\n", a, a.clone());
+                      System.out.println("\n***\n");
+                      System.out.format("Original B:\n%s\n\nCloned B:\n%s\n", b, b.clone());
                   } else {
                       String s = "No numbers to clone. Here is a sheep instead:\n\n"+
 "              __\n"+
@@ -133,7 +133,7 @@ public class bigBadTester {
                   break;
                  
               case 7 :
-                  System.out.println("See ya later Alligator");
+                  System.out.println("See ya later alligator ~");
                   break dance;
               
               default:

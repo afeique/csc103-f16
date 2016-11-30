@@ -6,103 +6,15 @@ public class UnboundedInt {
     private int numNodes;
     private IntNode head, tail, cursor;
     
-    public static void main(String[] args) {
-		
-        int numDigits, n;
-		String[] val = {"1","1"};
-        boolean r;
-
-        System.out.println("\nRunning random tests... Ctrl-C to stop.\n\n");
-
-        r = true;
-        while (r) {
-            for (int j=0; j<2; j++) {
-                numDigits = ThreadLocalRandom.current().nextInt(1,31);
-                val[j] = "";
-                for (int i=0; i<numDigits; i++) {
-                    n = ThreadLocalRandom.current().nextInt(1,10);
-                    val[j] += Integer.toString(n);
-                }
-
-                n = ThreadLocalRandom.current().nextInt(0,2);
-                if (n == 0)
-                    val[j] = "-" + val[j];
-            }
-
-            //System.out.format("%s, %s\n", val[0], val[1]);
-            r = testIter(val);
-        }
-			
-	}
-
-    private static boolean testIter(String[] val) {
-        boolean r;
-        UnboundedInt u1, u2, usum, uprod, clone;
-        BigInteger b1, b2, bsum, bprod;
-
-        u1 = new UnboundedInt(val[0]);
-        //System.out.format("Created UnboundedInt u1 = %s\n", u1.toString());
-        u2 = new UnboundedInt(val[1]);
-        //System.out.format("Created UnboundedInt u2 = %s\n", u2.toString());
-        usum = u1.add(u2);
-        //System.out.format("u1+u2 = %s\n", usum.toString());
-        uprod = u1.multiply(u2);
-        //System.out.format("u1*u2 = %s\n", uprod.toString());
-
-        b1 = new BigInteger(u1.toString());
-        //System.out.format("Created BigInteger b1 = %s\n", b1.toString());
-        b2 = new BigInteger(u2.toString());
-        //System.out.format("Created BigInteger b2 = %s\n", b2.toString());
-        bsum = b1.add(b2);
-        //System.out.format("b1+b2 = %s\n", bsum.toString());
-        bprod = b1.multiply(b2);
-        //System.out.format("b1*b2 = %s\n", bprod.toString());
-
-        //System.out.println("");
-
-        r = u1.equals(b1);
-        if (!r) {
-            System.out.format("error: expected u1==b1, but %s != %s\n", u1, b1);
-            return false;
-        }
-        r = u2.equals(b2);
-        if (!r) {
-            System.out.format("error: expected u2==b2, but %s != %s\n", u2, b2);
-            return false;
-        }
-
-
-        r = usum.equals(bsum);
-        if (!r) {
-            System.out.format("error: expected u1+u2 == b1+b2, but %s != %s\n", usum, bsum);
-            return false;
-        }
-        r = uprod.equals(bprod);
-        if (!r) {
-            System.out.format("error: expected u1*u2 == b1*b2, but %s != %s\n", uprod, bprod);
-            return false;
-        }
-
-        clone = u1.clone();
-        r = u1.equals(clone);
-        if (!r) {
-            System.out.format("error: expected u1.clone() == u1, but %s != %s\n", clone, u1);
-            return false;
-        }
-        clone = u2.clone();
-        r = u2.equals(clone);
-        if (!r) {
-            System.out.format("error: expected u2.clone() == u2, but %s != %s\n", clone, u2);
-            return false;
-        }
-
-
-        //System.out.format("OK\n\n\n");
-        return true;
-
-    }
-
-
+    
+    /**
+     * Private constructor for initializing class variables in other public 
+     * constructors.
+     * 
+     * @param none
+     * @postcondition
+     *   UnboundedInt object properties are instantiated to null or 0.
+     */
     private UnboundedInt() {
         // start with no linked list`
         this.head = null;
@@ -113,16 +25,29 @@ public class UnboundedInt {
     }
 
     /**
-     * Overloaded constructor that takes a java.math.BigInteger and uses that
-     * to set the value of the UnboundedInt.
+     * Public constructor that takes a java.math.BigInteger and uses that
+     * to set the value of this UnboundedInt object. Used for testing with BigIntegers.
      *
      * @param BigInteger
      *   The BigInteger with the value that this UnboundedInt should be initialized to.
+     * @postcondition
+     *   UnboundedInt object is instantiated to the same value as the input BigInteger.
      */
     public UnboundedInt(BigInteger b) {
         this(b.toString());
     }
 
+    /**
+     * Public constructor that takes a string input and uses that to initialize
+     * the value of this UnboundedInt object.
+     *
+     * @param String
+     *   The numeric value that UnboundedInt should be initialized to.
+     * @precondition
+     *   The input string has at least one numeric digit.
+     * @postcondition
+     *   UnboundedInt object is equal to the parsed numeric value of the input String.
+     */
     public UnboundedInt(String input) {
         // initialize instance vars
         this();
@@ -239,7 +164,8 @@ public class UnboundedInt {
     }
 
     /**
-     * A re-implementation of the Integer.parseInt() static method.
+     * A re-implementation of the Integer.parseInt() static method that is 
+     * more flexible.
      *
      * @param input
      *   The string to convert to an integer
@@ -310,10 +236,28 @@ public class UnboundedInt {
         return digit;
     }
 
+    /**
+     * Point this UnboundedInt object's cursor to its head IntNode.
+     *
+     * @param none
+     * @postcondition
+     *   UnboundedInt object's cursor is pointed at head IntNode.
+     */
     public void start() {
         this.cursor = this.head;
     }
 
+    /**
+     * Point this UnboundedInt object's cursor at the next IntNode in
+     * the linked list (the link of the current IntNode).
+     *
+     * @param none
+     * @precondition
+     *   Cursor is not-null and points to an existing IntNode.
+     * @postcondition
+     *   Cursor points at the next IntNode in the linked list. Cursor
+     *   becomes null if the current IntNode is the tail.
+     */
     public void advance() {
         if (this.cursor == null)
             throw new IllegalStateException("Cursor is null (not pointing to an IntNode)");
@@ -321,6 +265,15 @@ public class UnboundedInt {
         this.cursor = this.cursor.getLink();
     }
 
+    /**
+     * Get the value of the current IntNode the UnboundedInt object's cursor is pointing at.
+     *
+     * @param none
+     * @precondition
+     *   The cursor is not-null and points at an existing IntNode.
+     * @return int
+     *   The primitive int value of the current IntNode the cursor is pointing at.
+     */
     public int getNodeValue() {
         if (this.cursor == null)
             throw new IllegalStateException("Cursor is null (not pointing to an IntNode)");
@@ -328,22 +281,80 @@ public class UnboundedInt {
         return this.cursor.getData();
     }
 
+    /**
+     * Clone this UnboundedInt object.
+     *
+     * @param none
+     * @precondition
+     *   This UnboundedInt object exists.
+     * @postcondition
+     *   A new UnboundedInt instance with the same value as this one is created in
+     *   memory and a reference to that object is returned.
+     * @return UnboundedInt
+     */
     public UnboundedInt clone() {
         return new UnboundedInt(this.toString());
     }
 
+    /**
+     * Create a BigInteger that has the same value as an UnboundedInt object.
+     * 
+     * @param UnboundedInt
+     *   The UnboundedInt object whose value should be used.
+     * @return BigInteger
+     *   The newly created BigInteger that has the same value as the argument.
+     * @precondition
+     *   An UnboundedInt object is required.
+     * @postcondition
+     *   A new BigInteger object is created.
+     */
     public static BigInteger toBigInteger(UnboundedInt u) {
         return new BigInteger(u.toString());
     }
 
+    /**
+     * Create an UnboundedInt that has the same value as a BigInteger object.
+     * 
+     * @param BigInteger
+     *   The BigInteger object whose value should be used.
+     * @return UnboundedInt
+     *   The newly created UnboundedInt that has the same value as the argument.
+     * @precondition
+     *   A BigInteger object is required.
+     * @postcondition
+     *   A new UnboundedInt object is created.
+     */
     public static UnboundedInt fromBigInteger(BigInteger b) {
         return new UnboundedInt(b.toString());
     }
 
+    /**
+     * Return this UnboundedInt object's value as a BigInteger object.
+     * 
+     * @param none
+     * @return BigInteger
+     *   The newly created BigInteger that has the same value as the argument.
+     * @precondition
+     *   This UnboundedInt object exists.
+     * @postcondition
+     *   A new BigInteger object is created.
+     */
     public BigInteger toBigInteger() {
         return new BigInteger(this.toString());
     }
 
+    /**
+     * Check if this UnboundedInt object is equal to another object. The other
+     * object can be an UnboundedInt or a BigInteger.
+     * 
+     * @param Object
+     *   The other numeric object to check equality with.
+     * @return boolean
+     *   True if this UnboundedInt equals the argument in value.
+     * @precondition
+     *   The argument represents a numeric value. False is returned
+     *   for equality if the argument is a non-numeric String.
+     */
     public boolean equals(Object o) {
         if (o instanceof UnboundedInt) {
             UnboundedInt u = (UnboundedInt)o;
@@ -361,7 +372,8 @@ public class UnboundedInt {
 
 
     /**
-     * Add another UnboundedInt to the current one, returning a new UnboundedInt object as the result.
+     * Add this UnboundedInt with another UnboundedInt. 
+     * Return a new UnboundedInt with the sum.
      *
      * @param UnboundedInt
      *   The other UnboundedInt to add.
@@ -506,6 +518,16 @@ public class UnboundedInt {
         return sum;
     }
 
+    /**
+     * Trim zero nodes starting at the tail node and traversing backwards.
+     * This removes left-padded (extraneous) zeros, i.e. 000470 -> 470
+     *
+     * @param none
+     * @precondition
+     *   More than one node.
+     * @postcondition
+     *   A linked list with no zero nodes around the tail.
+     */
     public void trim() {
         while (this.tail.getData() == 0) {
             if (this.numNodes == 1)
@@ -516,6 +538,19 @@ public class UnboundedInt {
         }
     }
 
+    /**
+     * Seek to a particular node within the linked list.
+     * Throws an IllegalArgumentException if not that many nodes are present.
+     *
+     * @param int
+     *   The position to seek to. The head node is position 0.
+     * @precondition
+     *   Enough nodes to seek to the specified position.
+     * @postcondition
+     *   The cursor points at the desired node.
+     * @exception IllegalArgumentException
+     *   Thrown when a nonexistent position argument is given.
+     */
     public void seek(int n) {
         this.start();
         if (n >= this.numNodes || n < 0)
@@ -527,6 +562,15 @@ public class UnboundedInt {
         }
     }
 
+    /**
+     * Multiply this UnboundedInt object with another UnboundedInt.
+     * Return a new UnboundedInt with the product.
+     *
+     * @param UnboundedInt
+     *   The UnboundedInt to multiply by.
+     * @return UnboundedInt
+     *   Product of the multiply operation.
+     */
     public UnboundedInt multiply(UnboundedInt u) {
         int[] val = {0, 0};
         // multiplication of an N digit/node number by an M digit/node number
@@ -558,6 +602,7 @@ public class UnboundedInt {
             u.start();
             for (int j=0; j<u.numNodes; j++) {
                 val[1] = u.cursor.getData();
+                
                 
                 prodNode = prod.cursor.getData() + (val[0] * val[1]);
                 //System.out.format("Original Node %d value: %d\n", i+j, prod.cursor.getData());
