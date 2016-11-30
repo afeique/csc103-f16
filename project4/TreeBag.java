@@ -44,8 +44,51 @@ public class TreeBag<E extends Comparable> implements Cloneable
    *   Indicates insufficient memory a new BTNode.
    **/
    public void add(E element)
-   {      
-      // Implemented by student.
+   {
+      BTNode<E> newNode = new BTNode<E>(element);
+
+      // if there is no root node (null), set the new node as root
+      if (this.root == null) {
+         this.root = newNode;
+      } else {
+         // else if there is a root node,
+         // traverse the tree looking for a suitable null leaf node
+
+         // references to the previous (parent) node and current (child) node
+         BTNode<E> prevNode = null;
+         BTNode<E> curNode = this.root; // start at the root node
+
+         // traverse the tree 
+
+         // while the current node is not null,
+         while (curNode != null) {
+
+            // if the new node is <= the current node, branch left
+            if ( element.compareTo(curNode.getData()) <= 0 ) {
+
+               // update current and previous node references to branch left
+               prevNode = curNode;
+               curNode = curNode.getLeft();
+
+            // else if the new node is > the current node, branch right
+            } else if ( element.compareTo(curNode.getData()) > 0) {
+
+               // update current and previous node references to branch right
+               prevNode = curNode;
+               curNode = curNode.getRight();
+            }
+         }
+
+         // at this point, current node (child) is null
+         // previous node (parent) is not null
+         // null child node means we've located a leaf node to store the element
+         // use the parent node to add the new node
+         if ( element.compareTo(prevNode.getData()) <= 0 ) {
+            prevNode.setLeft(newNode);
+         } else if ( element.compareTo(prevNode.getData()) > 0 ) {
+            prevNode.setRight(newNode);
+         }
+      }
    }
 
    /**
@@ -78,13 +121,109 @@ public class TreeBag<E extends Comparable> implements Cloneable
    **/
    public boolean remove(E target)
    {
-      // Student will replace this return statement with their own code:
+      // if the root is not null, there are nodes that can be removed
+      if (this.root != null) {
+
+         // references to the current (child) node and previous (parent) node
+         BTNode<E> prevNode = null;
+         BTNode<E> curNode = this.root;
+
+         // whether the current node is the left or right branch of the parent
+         boolean isLeft = false;
+         boolean isRight = false;
+
+         while (curNode != null) {
+
+            // if the target is < current node, branch left
+            if (target.compareTo(curNode.getData()) < 0) {
+               prevNode = curNode;
+               curNode = curNode.getLeft();
+               isLeft = true;
+               isRight = false;
+
+            // else if the target is > current node, branch right
+            } else if (target.compareTo(curNode.getData()) > 0) {
+               prevNode = curNode;
+               curNode = curNode.getRight();
+               isLeft = false;
+               isRight = true;
+
+            // else if the target == current node, remove the current node
+            } else if (target.compareTo(curNode.getData()) == 0) {
+               
+               // get references to the left and right of current node
+               BTNode<E> left = curNode.getLeft();
+               BTNode<E> right = curNode.getRight();
+
+               // if current node's left is not null
+               if (left != null) {
+
+                  // if the current node is left of its parent node
+                  if (isLeft) {
+
+                     // set the parent node's left to the child node's left
+                     prevNode.setLeft(left);
+
+                  // else if the current node is right of its parent node,
+                  } else if (isRight) {
+
+                     // set the parent node's right to the child node's left
+                     prevNode.setRight(left);
+                  }
+
+                  // if the current node also has a right node,
+                  // add it back to the tree
+                  if (right != null) {
+                     this.add(right);
+                  }
+
+               // else if current node's left is null, but its right is not null
+               } else if (right != null) {
+
+                  // if the current node is left of its parent node
+                  if (isLeft) {
+
+                     // set the parent node's left to child node's right
+                     prevNode.setLeft(right);
+
+                  // else if the current node is right of its parent node
+                  } else if (isRight) {
+
+                     // set parent node's right to child node's right
+                     prevNode.setRight(right);
+                  }
+
+               // else if the current node is a leaf node and has no children
+               } else {
+
+                  // if the current node is left of its parent node
+                  if (isLeft) {
+
+                     // set the parent node's left to null
+                     prevNode.setLeft(null);
+
+                  // else if the current node is right of its parent node
+                  } else if (isRight) {
+
+                     // set the parent node's right to null
+                     prevNode.setRight(null);
+                  }
+               }
+
+               // return true indicating we removed an element
+               return true;
+            }
+         }
+      }
+
+      // if we get here, either root was null OR
+      // we searched the whole tree but found no match
       return false;
    }
    
    /**
    * Displays the entire tree of Node elements in a order specified
-   * by the elements compareTo method
+   * by the element's compareTo method
    * 
    * @param 
    *   none
@@ -94,9 +233,26 @@ public class TreeBag<E extends Comparable> implements Cloneable
    **/
    public void display()
    {
-      // Student will replace this with their own code:
-      
-   } 
+      if (this.root != null) 
+         this.recursiveDisplay(this.root)
+   }
+
+   public void recursiveDisplay(BTNode<E> node) 
+   {
+      if (node != null) {
+         BTNode<E> left = node.getLeft();
+         BTNode<E> right = node.getRight();
+
+         if (left != null) {
+            this.recursiveDisplay(left);
+         } else {
+            System.out.println(node.getData().toString());
+            if (right != null) {
+               this.recursiveDisplay(right);
+            }
+         }
+      }
+   }
      
    /**
    * Displays the entire tree of Node elements using the
