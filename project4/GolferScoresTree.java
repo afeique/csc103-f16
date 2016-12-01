@@ -18,10 +18,10 @@ import java.util.regex.*;
 */
 public class GolferScoresTree 
 {
+   private static Scanner scanner = new Scanner(System.in);
 
    public static void main(String[] args) 
    {
-      Scanner scanner = new Scanner(System.in);
       int choice, rounds, handicap, score;
       double avg;
       Golfer g;
@@ -50,13 +50,23 @@ public class GolferScoresTree
          System.out.println("------------------------------------------------------");
          System.out.print("\n");
 
-         System.out.print("Select a numeric menu option: ");
          
-         while (!scanner.hasNextInt()) {
-            scanner.next();
+         
+         choice = -1;
+         while (choice == -1) {
             System.out.print("Select a numeric menu option: ");
+            if (!GolferScoresTree.scanner.hasNextInt()) {
+               GolferScoresTree.scanner.next();
+               System.out.println("Positive integers only\n");
+            }
+            else {
+               choice = GolferScoresTree.scanner.nextInt();
+               if (choice < 0 || choice > 9) {
+                  choice = -1;
+                  System.out.println("Invalid option\n");
+               }
+            }
          }
-         choice = scanner.nextInt();
 
          System.out.print("\n\n");
 
@@ -74,8 +84,7 @@ public class GolferScoresTree
                break;
 
             case 3:
-               System.out.print("Golfer name: ");
-               name = scanner.next().trim();
+               name = GolferScoresTree.inputName();
                System.out.print("\n");
 
                g = db.retrieve(new Golfer(name));
@@ -87,20 +96,15 @@ public class GolferScoresTree
                break;
 
             case 4:
-               System.out.print("Golfer name: ");
-               name = scanner.next().trim();
+               name = GolferScoresTree.inputName();
                System.out.print("\n");
 
                g = db.retrieve(new Golfer(name));
                System.out.print("Golfer '"+ name +"' ");
                if (g != null) {
                   System.out.print("found in database:\n"+ g +"\n\n");
-                  System.out.print("Enter score to add: ");
-                  while (!scanner.hasNextInt()) {
-                     scanner.next();
-                     System.out.print("Enter score to add: ");
-                  }
-                  score = scanner.nextInt();
+                  score = GolferScoresTree.inputInt("Score to add: ");
+
                   g.addScore(score);
                   System.out.print("\n\nAdded score "+ score +" to golfer '"+ name +"':\n"+ g);
                }
@@ -110,8 +114,7 @@ public class GolferScoresTree
                break;
 
             case 5:
-               System.out.print("Golfer name: ");
-               name = scanner.next().trim();
+               name = GolferScoresTree.inputName();
                System.out.print("\n");
 
                Boolean success = db.remove(new Golfer(name));
@@ -124,32 +127,16 @@ public class GolferScoresTree
                break;
 
             case 6:
-               System.out.print("Golfer name: ");
-               name = scanner.next().trim();
+               name = GolferScoresTree.inputName();
                System.out.print("\n");
 
-               System.out.print("Number of rounds played: ");
-               rounds = 0;
-               if (scanner.hasNextInt())
-                  rounds = scanner.nextInt();
-               else
-                  System.out.println("  Defaulting to 0");
+               rounds = GolferScoresTree.inputInt("Number of rounds played: ");
                System.out.print("\n");
 
-               System.out.print("Player handicap: ");
-               handicap = 0;
-               if (scanner.hasNextInt())
-                  handicap = scanner.nextInt();
-               else
-                  System.out.println("  Defaulting to 0");
+               handicap = GolferScoresTree.inputInt("Player handicap: ");
                System.out.print("\n");
 
-               System.out.print("Average score: ");
-               avg = 0;
-               if (scanner.hasNextDouble())
-                  avg = scanner.nextDouble();
-               else
-                  System.out.println("  Defaulting to 0.00");
+               avg = GolferScoresTree.inputDouble("Average score: ");
                System.out.print("\n");
 
                System.out.print("\n");
@@ -170,11 +157,97 @@ public class GolferScoresTree
 
             case 9:
                System.out.print("Enter database filename: ");
-               dbFilename = scanner.next().trim();
+               dbFilename = GolferScoresTree.scanner.next().trim();
                System.out.print("\n");
+               break;
+
+            default:
+               System.out.println("Invalid option\n");
                break;
          }
       }
+   }
+
+   public static String inputName() {
+      return GolferScoresTree.inputString("Golfer name: ");
+   }
+
+   public static String inputString(String msg) {
+      //String errorMsg = "Must be a non-empty string\n";
+
+      /*
+      String input = "";
+      while (input == "") {
+         System.out.print(msg);
+         input = GolferScoresTree.scanner.next().trim();
+         if (input == "")
+            System.out.println(errorMsg);
+      }
+      */
+
+      // scanner automatically ignores empty inputs
+      System.out.print(msg);
+      input = GolferScoresTree.scanner.next().trim();
+
+      return input;
+   }
+
+   public static int inputInt(String msg) {
+      String strInput;
+      String errorMsg = "Must be a positive integer\n";
+
+      int input = -1;
+      while (input == -1) {
+         System.out.print(msg);
+         if (GolferScoresTree.scanner.hasNextInt()) {
+            input = GolferScoresTree.scanner.nextInt();
+            if (input < 0) {
+               input = -1;
+               System.out.println(errorMsg);
+            }
+         }
+         else {
+            strInput = GolferScoresTree.scanner.next();
+            if (strInput == "") {
+               input = 0;
+               System.out.println("Defaulting to 0");
+            }
+            else {
+               System.out.println(errorMsg);
+            }
+         }
+      }
+
+      return input;
+   }
+
+   public static double inputDouble(String msg) {
+      String strInput;
+      String errorMsg = "Must be a positive floating-point value\n";
+
+      double input = -1;
+      while (input == -1) {
+         System.out.print(msg);
+         if (GolferScoresTree.scanner.hasNextDouble()) {
+            input = GolferScoresTree.scanner.nextDouble();
+            if (input < 0) {
+               input = -1;
+               System.out.println(errorMsg);
+            }
+         }
+         else {
+            strInput = GolferScoresTree.scanner.next();
+            if (strInput == "") {
+               input = 0;
+               System.out.println("Defaulting to 0");
+            }
+            else {
+               System.out.println(errorMsg);
+            }
+         }
+      }
+
+      return input;
    }
 
    public static TreeBag<Golfer> loadDbFromFile(String dbFilename) 

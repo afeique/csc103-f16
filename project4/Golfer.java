@@ -24,6 +24,12 @@ public class Golfer implements Comparable<Golfer>
 
     public Golfer(String name, int rounds, int handicap, double avg) 
     {
+        if (rounds < 0)
+            rounds = 0;
+        if (handicap < 0)
+            handicap = 0;
+        if (avg < 0)
+            avg = 0;
         this.name = name;
         this.rounds = rounds;
         this.handicap = handicap;
