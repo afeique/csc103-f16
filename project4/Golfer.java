@@ -2,7 +2,7 @@
 
 /**
 * Objects of this class represent a single golfer and their attributes:
-* Lastname, number of rounds played, handicap, and average score
+* Name, number of rounds played, handicap, and average score
 * 
 * Standard accessor/mutator functions are provided for all attributes.
 * Additionally, a method for adding a new score to a golfer and recomputing
@@ -12,37 +12,37 @@
 */
 public class Golfer implements Comparable<Golfer> 
 {
-    private String lastname;
-    private int numberOfRounds;
+    private String name;
+    private int rounds;
     private int handicap;
-    private double averageScore;
+    private double avg;
 
-    public Golfer(String lastname) 
+    public Golfer(String name) 
     {
-        this(lastname, 0, 0, 0);
+        this(name, 0, 0, 0);
     }
 
-    public Golfer(String lastname, int numberOfRounds, int handicap, double averageScore) 
+    public Golfer(String name, int rounds, int handicap, double avg) 
     {
-        this.lastname = lastname;
-        this.numberOfRounds = numberOfRounds;
+        this.name = name;
+        this.rounds = rounds;
         this.handicap = handicap;
-        this.averageScore = averageScore;
+        this.avg = avg;
     }
 
     public int compareTo(Golfer g) 
     {
-        return this.lastname.compareToIgnoreCase(g.lastname);
+        return this.name.compareToIgnoreCase(g.name);
     }
 
-    public void setLastname(String lastname) 
+    public void setName(String name) 
     {
-        this.lastname = lastname;
+        this.name = name;
     }
 
-    public void setNumberOfRounds(int numberOfRounds) 
+    public void setRounds(int rounds) 
     {
-        this.numberOfRounds = numberOfRounds;
+        this.rounds = rounds;
     }
 
     public void setHandicap(int handicap) 
@@ -50,19 +50,19 @@ public class Golfer implements Comparable<Golfer>
         this.handicap = handicap;
     }
 
-    public void setAverageScore(double averageScore) 
+    public void setAvg(double avg) 
     {
-        this.averageScore = averageScore;
+        this.avg = avg;
     }
 
-    public String getLastname() 
+    public String getName() 
     {
-        return this.lastname;
+        return this.name;
     }
 
-    public int getNumberOfRounds() 
+    public int getRounds() 
     {
-        return this.numberOfRounds;
+        return this.rounds;
     }
 
     public int getHandicap() 
@@ -70,20 +70,20 @@ public class Golfer implements Comparable<Golfer>
         return this.handicap;
     }
 
-    public double getAverageScore() 
+    public double getAvg() 
     {
-        return this.averageScore;
+        return this.avg;
     }
 
     public void addScore(double newScore) 
     {
-        double totalScore = this.averageScore * this.numberOfRounds;
-        this.averageScore = (totalScore + newScore)/++this.numberOfRounds;
+        double totalScore = this.avg * this.rounds;
+        this.avg = (totalScore + newScore)/++this.rounds;
     }
 
     public String toString() 
     {
-        String avgStr = String.format("%.2f", this.averageScore);
-        return this.lastname +" "+ this.numberOfRounds +" "+ this.handicap +" "+ avgStr;
+        String avgStr = String.format("%.2f", this.avg);
+        return this.name +" "+ this.rounds +" "+ this.handicap +" "+ avgStr;
     }
 }

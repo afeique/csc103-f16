@@ -31,8 +31,26 @@ public class TreeBag<E extends Comparable> implements Cloneable
    //   1. The elements in the bag are stored in a binary search tree.
    //   2. The instance variable root is a reference to the root of the
    //      binary search tree (or null for an empty tree).
-   private BTNode<E> root;   
+   private BTNode<E> root;
 
+
+   /**
+   * Insert a new element into this bag.
+   * @param <CODE>element</CODE>
+   *   the new element that is being inserted
+   * <dt><b>Postcondition:</b><dd>
+   *   A new copy of the element has been added to this bag.
+   * @exception OutOfMemoryError
+   *   Indicates insufficient memory to create a new IntBTNode.
+   **/
+   public void add(E element)
+   {
+      // create a new node containing the element
+      if (element == null)
+         return;
+      BTNode<E> newNode = new BTNode<E>(element, null, null);
+      this.add(newNode);
+   }
 
    /**
    * Insert a new element into this bag.
@@ -43,14 +61,18 @@ public class TreeBag<E extends Comparable> implements Cloneable
    * @exception OutOfMemoryError
    *   Indicates insufficient memory a new BTNode.
    **/
-   public void add(E element)
+   public void add(BTNode<E> newNode)
    {
-      BTNode<E> newNode = new BTNode<E>(element);
+      if (newNode == null)
+         return;
+      
+      E element = newNode.getData();
 
       // if there is no root node (null), set the new node as root
       if (this.root == null) {
          this.root = newNode;
-      } else {
+      } 
+      else {
          // else if there is a root node,
          // traverse the tree looking for a suitable null leaf node
 
@@ -65,14 +87,12 @@ public class TreeBag<E extends Comparable> implements Cloneable
 
             // if the new node is <= the current node, branch left
             if ( element.compareTo(curNode.getData()) <= 0 ) {
-
                // update current and previous node references to branch left
                prevNode = curNode;
                curNode = curNode.getLeft();
-
+            } 
             // else if the new node is > the current node, branch right
-            } else if ( element.compareTo(curNode.getData()) > 0) {
-
+            else if ( element.compareTo(curNode.getData()) > 0) {
                // update current and previous node references to branch right
                prevNode = curNode;
                curNode = curNode.getRight();
@@ -85,14 +105,15 @@ public class TreeBag<E extends Comparable> implements Cloneable
          // use the parent node to add the new node
          if ( element.compareTo(prevNode.getData()) <= 0 ) {
             prevNode.setLeft(newNode);
-         } else if ( element.compareTo(prevNode.getData()) > 0 ) {
+         } 
+         else if ( element.compareTo(prevNode.getData()) > 0 ) {
             prevNode.setRight(newNode);
          }
       }
    }
 
    /**
-   * Retrieve location of a specified element from this bag.
+   * Retrieve a specified element from this bag.
    * @param <CODE>target</CODE>
    *   the element to locate in the bag
    * @return 
@@ -105,8 +126,43 @@ public class TreeBag<E extends Comparable> implements Cloneable
    **/
    public E retrieve(E target)
    {
-      // Student will replace this return statement with their own code:
-      return target;
+      // if the root is not null, there are nodes that can be removed
+      if (this.root != null) {
+
+         // references to the current (child) node and previous (parent) node
+         BTNode<E> prevNode = null;
+         BTNode<E> curNode = this.root;
+
+         // whether the current node is the left or right branch of the parent
+         boolean isLeft = false;
+         boolean isRight = false;
+
+         while (curNode != null) {
+            // if the target is < current node, branch left
+            if (target.compareTo(curNode.getData()) < 0) {
+               prevNode = curNode;
+               curNode = curNode.getLeft();
+               isLeft = true;
+               isRight = false;
+            } 
+            // else if the target is > current node, branch right
+            else if (target.compareTo(curNode.getData()) > 0) {
+               prevNode = curNode;
+               curNode = curNode.getRight();
+               isLeft = false;
+               isRight = true;
+            } 
+            // else if the target == current node, we've found the correct node
+            else if (target.compareTo(curNode.getData()) == 0) {
+               // return the data for the node we found
+               return curNode.getData();
+            }
+         }
+      }
+
+      // if we get here, either root was null OR
+      // we searched the whole tree but found no match
+      return null;
    }
 
    
@@ -140,33 +196,29 @@ public class TreeBag<E extends Comparable> implements Cloneable
                curNode = curNode.getLeft();
                isLeft = true;
                isRight = false;
-
+            } 
             // else if the target is > current node, branch right
-            } else if (target.compareTo(curNode.getData()) > 0) {
+            else if (target.compareTo(curNode.getData()) > 0) {
                prevNode = curNode;
                curNode = curNode.getRight();
                isLeft = false;
                isRight = true;
-
+            } 
             // else if the target == current node, remove the current node
-            } else if (target.compareTo(curNode.getData()) == 0) {
-               
+            else if (target.compareTo(curNode.getData()) == 0) {
                // get references to the left and right of current node
                BTNode<E> left = curNode.getLeft();
                BTNode<E> right = curNode.getRight();
 
                // if current node's left is not null
                if (left != null) {
-
                   // if the current node is left of its parent node
                   if (isLeft) {
-
                      // set the parent node's left to the child node's left
                      prevNode.setLeft(left);
-
+                  } 
                   // else if the current node is right of its parent node,
-                  } else if (isRight) {
-
+                  else if (isRight) {
                      // set the parent node's right to the child node's left
                      prevNode.setRight(left);
                   }
@@ -176,34 +228,29 @@ public class TreeBag<E extends Comparable> implements Cloneable
                   if (right != null) {
                      this.add(right);
                   }
-
+               } 
                // else if current node's left is null, but its right is not null
-               } else if (right != null) {
-
+               else if (right != null) {
                   // if the current node is left of its parent node
                   if (isLeft) {
-
                      // set the parent node's left to child node's right
                      prevNode.setLeft(right);
-
+                  } 
                   // else if the current node is right of its parent node
-                  } else if (isRight) {
-
+                  else if (isRight) {
                      // set parent node's right to child node's right
                      prevNode.setRight(right);
                   }
-
-               // else if the current node is a leaf node and has no children
-               } else {
-
+               } 
+               // else the current node is a leaf node and has no children
+               else {
                   // if the current node is left of its parent node
                   if (isLeft) {
-
                      // set the parent node's left to null
                      prevNode.setLeft(null);
-
+                  } 
                   // else if the current node is right of its parent node
-                  } else if (isRight) {
+                  else if (isRight) {
 
                      // set the parent node's right to null
                      prevNode.setRight(null);
@@ -222,7 +269,7 @@ public class TreeBag<E extends Comparable> implements Cloneable
    }
    
    /**
-   * Displays the entire tree of Node elements in a order specified
+   * Displays the entire tree of Node elements in the order specified
    * by the element's compareTo method
    * 
    * @param 
@@ -233,23 +280,57 @@ public class TreeBag<E extends Comparable> implements Cloneable
    **/
    public void display()
    {
-      if (this.root != null) 
-         this.recursiveDisplay(this.root)
+      System.out.println(this.toString());
    }
 
-   public void recursiveDisplay(BTNode<E> node) 
+   /**
+   * Returns a string containing the entire tree of Node elements in 
+   * the order specified by the element's compareTo method
+   * 
+   * @param 
+   *   none
+   * <dt><b>Postcondition:</b><dd>
+   *   Outputs all elements in the tree to Screen.
+   *   Does not change the structure 
+   **/
+   public String toString() {
+      StringBuilder out = new StringBuilder();
+
+      if (this.root != null) 
+         this.toString(this.root, out);
+
+      return out.toString();
+   }
+
+   /**
+   * Recursively traverses the tree in the order specified by the
+   * element's compareTo and builds a string containing an in-order
+   * output of every element.
+   * 
+   * @param 
+   *   none
+   * <dt><b>Postcondition:</b><dd>
+   *   Outputs all elements in the tree to Screen.
+   *   Does not change the structure 
+   **/
+   public void toString(BTNode<E> node, StringBuilder out) 
    {
       if (node != null) {
          BTNode<E> left = node.getLeft();
          BTNode<E> right = node.getRight();
-
+         
+         // print out left subtree
          if (left != null) {
-            this.recursiveDisplay(left);
-         } else {
-            System.out.println(node.getData().toString());
-            if (right != null) {
-               this.recursiveDisplay(right);
-            }
+            this.toString(left, out);
+         }
+         
+         // print out current node
+         out.append(node.getData().toString());
+         out.append("\n");
+         
+         // print out right subtree
+         if (right != null) {
+            this.toString(right, out);
          }
       }
    }
