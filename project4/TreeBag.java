@@ -51,6 +51,7 @@ public class TreeBag<E extends Comparable> implements Cloneable
       // create a new node containing the element
       if (element == null)
          return;
+
       BTNode<E> node = new BTNode<E>(element, null, null);
       this.add(node);
    }
@@ -64,6 +65,7 @@ public class TreeBag<E extends Comparable> implements Cloneable
    * @exception OutOfMemoryError
    *   Indicates insufficient memory a new BTNode.
    **/
+
    public void add(BTNode<E> node)
    {
       if (node == null)
@@ -318,6 +320,7 @@ public class TreeBag<E extends Comparable> implements Cloneable
    **/
    public void toString(BTNode<E> node, StringBuilder out) 
    {
+
       if (node == null)
          return;
 
@@ -325,18 +328,16 @@ public class TreeBag<E extends Comparable> implements Cloneable
       BTNode<E> right = node.getRight();
       
       // print out left subtree
-      if (left != null) {
+      if (left != null)
          this.toString(left, out);
-      }
       
       // print out current node
       out.append(node.getData().toString());
       out.append("\n");
       
       // print out right subtree
-      if (right != null) {
+      if (right != null)
          this.toString(right, out);
-      }
    }
      
    /**
