@@ -5,13 +5,13 @@
 
 
 /******************************************************************************
-* A <CODE>BTNode&lt;<E&gt;</CODE> provides a node for a binary tree. Each node 
+* A <code>BTNode&lt;<E&gt;</code> provides a node for a binary tree. Each node 
 * contains a piece of data (which is a reference to an E object) and references
 * to a left and right child. The references to children may be null to indicate
 * that there is no child. The reference stored in a node can also be null.
 *
 * <dl><dt><b>Limitations:</b> <dd>
-*   Beyond <CODE>Int.MAX_VALUE</CODE> elements, <CODE>treeSize</CODE>, is
+*   Beyond <code>Int.MAX_VALUE</code> elements, <code>treeSize</code>, is
 *   wrong.
 *
 * <dt><b>Java Source Code for this class:</b><dd>
@@ -35,15 +35,15 @@ public class BTNode<E>
    private BTNode<E> left, right;   
 
    /**
-   * Initialize a <CODE>BTNode</CODE> with a specified initial data and links
+   * Initialize a <code>BTNode</code> with a specified initial data and links
    * children. Note that a child link may be the null reference, 
    * which indicates that the new node does not have that child.
-   * @param <CODE>initialData</CODE>
+   * @param initialData
    *   the initial data of this new node
-   * @param <CODE>initialLeft</CODE>
+   * @param initialLeft
    *   a reference to the left child of this new node--this reference may be null
    *   to indicate that there is no node after this new node.
-   * @param <CODE>initialRight</CODE>
+   * @param initialRight
    *   a reference to the right child of this new node--this reference may be null
    *   to indicate that there is no node after this new node.
    * <dt><b>Postcondition:</b><dd>
@@ -135,7 +135,7 @@ public class BTNode<E>
    * @param - none
    * <dt><b>Postcondition:</b><dd>
    *   The data of this node and all its descendants have been writeen by
-   *   <CODE>System.out.println( )</CODE> using an inorder traversal.
+   *   <code>System.out.println( )</code> using an inorder traversal.
    **/
    public void inorderPrint( )
    {
@@ -151,8 +151,8 @@ public class BTNode<E>
    * Accessor method to determine whether a node is a leaf. 
    * @param - none
    * @return
-   *   <CODE>true</CODE> (if this node is a leaf) or 
-   *   <CODE>false</CODE> (if this node is not a leaf.
+   *   <code>true</code> (if this node is a leaf) or 
+   *   <code>false</code> (if this node is not a leaf.
    **/
    public boolean isLeaf( )
    {
@@ -166,7 +166,7 @@ public class BTNode<E>
    * @param - none
    * <dt><b>Postcondition:</b><dd>
    *   The data of this node and all its descendants have been writeen by
-   *   <CODE>System.out.println( )</CODE> using a preorder traversal.
+   *   <code>System.out.println( )</code> using a preorder traversal.
    **/
    public void preorderPrint( )
    {
@@ -184,7 +184,7 @@ public class BTNode<E>
    * @param - none
    * <dt><b>Postcondition:</b><dd>
    *   The data of this node and all its descendants have been writeen by
-   *   <CODE>System.out.println( )</CODE> using a postorder traversal.
+   *   <code>System.out.println( )</code> using a postorder traversal.
    **/
    public void postorderPrint( )
    {
@@ -200,14 +200,14 @@ public class BTNode<E>
    * Uses an inorder traversal to print the data from each node at or below
    * this node of the binary tree, with indentations to indicate the depth
    * of each node.
-   * @param <CODE>depth</CODE>
+   * @param depth
    *   the depth of this node (with 0 for root, 1 for the root's
    *   children, and so on)(
    * <dt><b>Precondition:</b><dd>
-   *   <CODE>depth</CODE> is the depth of this node.
+   *   <code>depth</code> is the depth of this node.
    * <dt><b>Postcondition:</b><dd>
    *   The data of this node and all its descendants have been writeen by
-   *   <CODE>System.out.println( )</CODE> using an inorder traversal.
+   *   <code>System.out.println( )</code> using an inorder traversal.
    *   The indentation of each line of data is four times its depth in the
    *   tree. A dash "--" is printed at any place where a child has no
    *   sibling.
@@ -288,10 +288,10 @@ public class BTNode<E>
        
    /**
    * Modification method to set the data in this node.   
-   * @param <CODE>newData</CODE>
+   * @param newData
    *   the new data to place in this node
    * <dt><b>Postcondition:</b><dd>
-   *   The data of this node has been set to <CODE>newData</CODE>.
+   *   The data of this node has been set to <code>newData</code>.
    **/
    public void setData(E newData)   
    {
@@ -301,11 +301,11 @@ public class BTNode<E>
    
    /**
    * Modification method to set the link to the left child of this node.
-   * @param <CODE>newLeft</CODE>
+   * @param newLeft
    *   a reference to the node that should appear as the left child of this node
    *  (or the null reference if there is no left child for this node)
    * <dt><b>Postcondition:</b><dd>
-   *   The link to the left child of this node has been set to <CODE>newLeft</CODE>.
+   *   The link to the left child of this node has been set to <code>newLeft</code>.
    *   Any other node (that used to be the left child) is no longer connected to
    *   this node.
    **/
@@ -317,11 +317,11 @@ public class BTNode<E>
     
    /**
    * Modification method to set the link to the right child of this node.
-   * @param <CODE>newLeft</CODE>
+   * @param newLeft
    *   a reference to the node that should appear as the right child of this node
    *  (or the null reference if there is no right child for this node)
    * <dt><b>Postcondition:</b><dd>
-   *   The link to the right child of this node has been set to <CODE>newRight</CODE>.
+   *   The link to the right child of this node has been set to <code>newRight</code>.
    *   Any other node (that used to be the right child) is no longer connected to
    *   this node.
    **/
@@ -333,12 +333,12 @@ public class BTNode<E>
     
    /**
    * Copy a binary tree.
-   * @param <CODE>source</CODE>
+   * @param source
    *   a reference to the root of a binary tree that will be copied (which may be
-   *   an empty tree where <CODE>source</CODE> is null)
+   *   an empty tree where <code>source</code> is null)
    * @return
    *   The method has made a copy of the binary tree starting at 
-   *   <CODE>source</CODE>. The return value is a reference to the root of the copy. 
+   *   <code>source</code>. The return value is a reference to the root of the copy. 
    * @exception OutOfMemoryError
    *   Indicates that there is insufficient memory for the new tree.   
    **/ 
@@ -359,14 +359,14 @@ public class BTNode<E>
 
    /**
    * Count the number of nodes in a binary tree.
-   * @param <CODE>root</CODE>
+   * @param root
    *   a reference to the root of a binary tree (which may be
-   *   an empty tree where <CODE>source</CODE> is null)
+   *   an empty tree where <code>source</code> is null)
    * @return
    *   the number of nodes in the binary tree  
    * <dt><b>Note:</b><dd>
    *   A wrong answer occurs for trees larger than 
-   *   <CODE>INT.MAX_VALUE</CODE>.    
+   *   <code>INT.MAX_VALUE</code>.    
    **/ 
    public static <E> int treeSize(BTNode<E> root)
    {
